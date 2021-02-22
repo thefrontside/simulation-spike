@@ -4,9 +4,9 @@ import { getArbitrary } from './arbitrary';
 import { date } from '../io-ts/date';
 import dayjs from 'dayjs';
 
-fc.configureGlobal({ seed: 0, numRuns: 5 });
-
 describe('fakery', () => {
+  fc.configureGlobal({ seed: 0, numRuns: 5 });
+
   it('should generate the same object sample with the same seed', () => {
     const model = t.type({
       firstName: t.string,
@@ -22,8 +22,6 @@ describe('fakery', () => {
     //   console.dir(a);
     // }
 
-    const formattedUpdatedAt = dayjs(arbritaries[0].updatedat).format('YYYY-MM-DD');
-
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     delete arbritaries[0].updatedat;
@@ -34,7 +32,5 @@ describe('fakery', () => {
       email: 'Tod_Botsford42@hotmail.com',
       status: 'inactive',
     });
-
-    expect(formattedUpdatedAt).toBe('2017-02-18');
   });
 });

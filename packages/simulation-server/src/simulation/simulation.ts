@@ -5,8 +5,7 @@ import { getArbitraryInstance } from '../fakery/arbitrary';
 import { Thing, Simulator, SimulatorTags } from '../types';
 import { assert } from 'assert-ts';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const getSimulator = (simulation: Simulation<any>) => async <SIMS extends SimulatorTags>(
+const getSimulator = <S extends SimulatorTags>(simulation: Simulation<S>) => async <SIMS extends SimulatorTags>(
   tag: SIMS,
 ): Promise<Simulator<SIMS>> => {
   const simulator = {
@@ -21,9 +20,9 @@ const getSimulator = (simulation: Simulation<any>) => async <SIMS extends Simula
 
 export class Simulation<SIMS extends SimulatorTags> {
   public simulators: Record<SIMS, Simulator<SIMS>>;
-  readonly uuid = generateUUID4();
-
-  constructor(public name: string, public timeToLiveInMs: number = 500) {
+  public readonly uuid;
+  constructor(public name: string, uuid?: string, public timeToLiveInMs: number = 500) {
+    this.uuid = uuid ?? generateUUID4();
     this.simulators = {} as Record<SIMS, Simulator<SIMS>>;
   }
 
@@ -35,8 +34,7 @@ export class Simulation<SIMS extends SimulatorTags> {
   }: {
     simulator: SIM;
     kind: string;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    identifier?: any;
+    identifier?: string;
     attributes?: T;
   }): Thing<T> {
     const sim = this.simulators[simulator];
@@ -62,14 +60,14 @@ export class Simulation<SIMS extends SimulatorTags> {
   static async createSimulation<SSIMS extends SimulatorTags>(
     name: string,
     simulators: SSIMS | SSIMS[],
+    uuid?: string,
     timeToLiveInMs = 500,
   ): Promise<Simulation<SSIMS>> {
     simulators = Array.isArray(simulators) ? simulators : [simulators];
 
-    const simulation = new Simulation<SSIMS>(name, timeToLiveInMs);
+    const simulation = new Simulation<SSIMS>(name, uuid, timeToLiveInMs);
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    for (const sim of await Promise.all<Simulator<SSIMS>>(simulators.map(getSimulator(simulation) as any))) {
+    for (const sim of await Promise.all<Simulator<SSIMS>>(simulators.map(getSimulator(simulation)))) {
       assert(!!sim, `no simulator`);
       assert(!!sim.parentUid, `no parentUid for simulation`);
 

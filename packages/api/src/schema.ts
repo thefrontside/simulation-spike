@@ -16,7 +16,7 @@ const schema = makeSchema({
     sources: [
       {
         alias: 'ctx',
-        source: path.join(cwd, 'dist/context/SimulationContext.d.ts'),
+        source: path.join(cwd, 'dist/context/types.d.ts'),
       },
     ],
   },

@@ -1,5 +1,5 @@
 import { Slice } from '@bigtest/atom';
-import { Operation, spawn } from 'effection';
+import { Operation, fork } from 'effection';
 import { Simulation } from '../simulation/simulation';
 import { Thing, SimulatorTags, SimulationsState } from '../types';
 import { map } from '../server/synchronize';
@@ -30,8 +30,7 @@ export function createStatePublisher(atom: Slice<SimulationsState>): StatePublis
   const channel = new Channel<StateEvents>();
 
   function* start() {
-    console.dir('starting.....');
-    yield spawn(
+    yield fork(
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       map(atom.slice('simulations'), function* (simulationState, simulationKey) {
         const simulation = Object.values(simulationState.get())[0] as Simulation<SimulatorTags>;
@@ -41,7 +40,7 @@ export function createStatePublisher(atom: Slice<SimulationsState>): StatePublis
           simulation,
         } as const;
 
-        console.dir(message);
+        // console.dir(message);
 
         channel.send(message);
 
@@ -49,9 +48,7 @@ export function createStatePublisher(atom: Slice<SimulationsState>): StatePublis
           const tag = simKey as SimulatorTags;
           const simulator = simulation.simulators[tag];
 
-          console.dir('here');
-
-          yield spawn(
+          yield fork(
             map(
               atom.slice('simulations', simulation.uuid, 'simulators', simulator.uuid, 'things'),
               // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -70,7 +67,7 @@ export function createStatePublisher(atom: Slice<SimulationsState>): StatePublis
 
                 channel.send(message);
 
-                console.dir(message);
+                // console.dir(message);
 
                 for (const current of Object.keys(atom.slice('simulations', simulation.uuid, 'simulators').get())) {
                   const simulatorSlice = atom.slice('simulations', simulation.uuid, 'simulators', current, 'simulator');

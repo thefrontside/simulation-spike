@@ -65,8 +65,7 @@ export const auth0Factory = (): Simulator<'auth0'> => {
       clear() {
         tokenStore.tokens = [];
       },
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      getAll(): any[] {
+      getAll(): unknown[] {
         return (tokenStore.tokens as unknown) as Token[];
       },
     } as unknown) as Store,

@@ -4,11 +4,10 @@ import { GraphQLObjectType } from 'graphql';
 import * as t from 'io-ts';
 import { uuid } from '../../io-ts/uuid';
 import { date } from '../../io-ts/date';
-import { Simulator, Store, Thing } from '../../types';
+import { Simulator, Store } from '../../types';
 import { schema, db } from 'fake-api';
 import { filterNexusQueryFromSchema } from './getSchemaFromNexus';
 import { generateUUID4 } from '../../fakery/fakery';
-import { getArbitraryInstance } from '../../fakery/arbitrary';
 
 const PrimitiveMap = {
   String: t.string,

@@ -8,6 +8,7 @@ type Credentials = {
 };
 
 const Login = async ({ userName, password }: Credentials) => {
+  console.dir('here');
   const response = await axios.post('/api/login', {
     userName,
     password,

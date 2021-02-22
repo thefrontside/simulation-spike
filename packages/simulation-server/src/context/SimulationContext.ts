@@ -3,6 +3,7 @@ import { SimulatorTags, CreateResult, SimulationsState, Simulator, SimulationSta
 import { assert } from 'assert-ts';
 import { Slice } from '@bigtest/atom';
 import { StatePublisher } from '../state-publisher/state-publisher';
+import { getArbitraryInstance } from '../fakery/arbitrary';
 
 export const SimulatorsKey = 'simulators';
 
@@ -12,11 +13,23 @@ export class SimulationContext {
   async createSimulation<SIMS extends SimulatorTags>(
     name: string,
     simulators: SIMS | SIMS[],
+    uuid?: string,
     timeToLiveInMs = 500,
   ): Promise<SimulationProps> {
+    if (typeof uuid !== 'undefined') {
+      const existing = this.atom.slice('simulations', uuid).get();
+
+      if (existing?.simulation) {
+        return {
+          uuid: existing.simulation.uuid,
+          name,
+        };
+      }
+    }
+
     name = name ?? simulators;
 
-    const simulation = await Simulation.createSimulation<SIMS>(name, simulators, timeToLiveInMs);
+    const simulation = await Simulation.createSimulation<SIMS>(name, simulators, uuid, timeToLiveInMs);
 
     this.atom.slice('simulations').update((s) => {
       if (typeof s[simulation.uuid] === 'undefined') {
@@ -77,12 +90,64 @@ export class SimulationContext {
 
     const simulator = simulation.simulators[tag];
 
-    simulationSlice.slice('simulators', simulator.uuid, 'things').update((things) => ({
-      ...things,
-      [thing.uuid]: {
-        ...thing,
-      },
-    }));
+    const simulatorsSlice = simulationSlice.slice('simulators');
+
+    simulatorsSlice.slice(simulator.uuid, 'things').update((s) => {
+      if (typeof s[thing.uuid] === 'undefined') {
+        s[thing.uuid] = { ...thing };
+      }
+
+      return s;
+    });
+
+    for (const [key, simState] of Object.entries(simulatorsSlice.get())) {
+      const sim = simState.simulator;
+
+      if (key === simulator.uuid) {
+        continue;
+      }
+
+      if (
+        sim.store
+          .getAll()
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          .find((a: any) => a.id === thing.value?.id)
+      ) {
+        continue;
+      }
+
+      const kind = sim.thingMap[thing.kind];
+
+      const type = sim.getIntermediateType(kind);
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const attributes: any = getArbitraryInstance(type);
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      for (const key of Object.keys(thing.value as any)) {
+        if (attributes[key]) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          attributes[key] = (thing.value as any)[key];
+        }
+      }
+
+      const newThing = simulation.create({
+        kind,
+        simulator: sim.tag,
+        attributes,
+      });
+
+      const parentUid = sim.parentUid;
+
+      assert(!!parentUid, `no parentUid on simulator ${sim.uuid}`);
+
+      this.atom.slice('simulations', parentUid, 'simulators', sim.uuid, 'things', newThing.uuid).set(newThing);
+    }
+
+    // console.dir('gateway');
+    // console.dir(simulation.simulators?.gateway?.store?.getAll());
+    // console.dir('auth0');
+    // console.dir(simulation.simulators?.auth0?.store?.getAll());
 
     return {
       success: true,

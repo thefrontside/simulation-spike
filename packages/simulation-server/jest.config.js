@@ -17,7 +17,7 @@ module.exports = {
     '.(ts|tsx|js)$': require.resolve('ts-jest/dist'),
     '.(js|jsx|cjs|mjs)$': require.resolve('babel-jest'),
   },
-  transformIgnorePatterns: ['[/\\\\]node_modules[/\\\\].+\\.(js|jsx)$'],
+  transformIgnorePatterns: ['[/\\\\](node_modules|dist)[/\\\\].+\\.(js|jsx)$'],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'csv', 'node'],
   moduleDirectories: ['node_modules', '../../node_modules'],
   modulePaths: ['<rootDir>', 'src'],

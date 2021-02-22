@@ -21,7 +21,7 @@ scalar KeyValuePair
 
 type Mutation {
   create(attributes: KeyValuePair, kind: String!, simulationID: ID!, simulator: AvailableSimulators!): CreateResult
-  createSimulation(name: String, simulators: [AvailableSimulators]!, timeToLiveInMS: Int): Simulation
+  createSimulation(name: String!, simulators: [AvailableSimulators]!, timeToLiveInMS: Int, uuid: String): Simulation
 }
 
 type Query {

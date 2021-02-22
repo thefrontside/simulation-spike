@@ -4,6 +4,7 @@ import type { Channel } from '@effection/channel';
 import { spawn, timeout } from 'effection';
 import { on } from '@effection/events';
 import { watch } from 'chokidar';
+import rimraf from 'rimraf';
 
 main(function* () {
   const watcher = watch('./src/**/*.ts', { ignoreInitial: true });
@@ -45,6 +46,7 @@ function writeOut(channel: Channel<string>, out: NodeJS.WriteStream) {
 function* buildAndRun(delay = 0) {
   try {
     yield timeout(delay);
+    rimraf.sync('./tsconfig.tsbuildinfo');
     const p = yield exec('yarn generate');
     yield spawn(writeOut(p.stdout, process.stdout));
     yield spawn(writeOut(p.stderr, process.stderr));

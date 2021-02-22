@@ -54,6 +54,14 @@ describe('simulation', () => {
 
         expect(retrieved.simulators['gateway'].uuid).toBeTruthy();
       });
+
+      it('should give simulation unique id', async () => {
+        const simulation = await simulationContext.createSimulation('test', 'gateway', '42');
+
+        const retrieved = simulationContext.atom.slice('simulations', simulation.uuid, 'simulation').get();
+
+        expect(retrieved.uuid).toBe('42');
+      });
     });
 
     describe('simulation events', () => {
@@ -119,11 +127,8 @@ describe('simulation', () => {
     describe('should propagate new data across simulators', () => {
       let thing: Thing<Authh0Types>;
       let result: { uuid: string; name?: string };
-      let subscription: Subscription<StateEvents>;
 
       beforeEach(async () => {
-        subscription = await currentWorld.spawn(subscribe(statePublisher));
-
         result = await simulationContext.createSimulation('test', ['auth0', 'gateway']);
 
         const simulation = simulationContext.atom.slice('simulations', result.uuid, 'simulation').get();
@@ -137,26 +142,31 @@ describe('simulation', () => {
         assert(auth0Store?.getAll()?.length === 0, `too many records in auth0 ${auth0Store?.getAll()?.length}`);
         assert(usersStore?.getAll()?.length === 0, `too many records in gateway ${usersStore?.getAll()?.length}`);
 
-        thing = simulationContext.create<Authh0Types>({
+        thing = simulationContext.create({
           simulationID: result.uuid,
-          kind: 'Token',
-          simulator: 'auth0',
+          kind: 'User',
+          simulator: 'gateway',
         }).attributes;
       });
 
       it('should create thing in simulation store', () => {
-        const simulatorSlice = simulationContext.atom.slice('simulations', result.uuid, 'simulators');
+        const simulationSlice = simulationContext.atom.slice('simulations', result.uuid);
 
-        const simulator = Object.values(simulatorSlice.get())[0].simulator;
+        const simulation = simulationSlice.slice('simulation').get();
 
-        const token: Thing<Authh0Types> = simulatorSlice.slice(simulator.uuid, 'things', thing.uuid).get();
+        const gateway = simulation.simulators.gateway;
+        const auth0 = simulation.simulators.auth0;
+
+        const user = simulationSlice.slice('simulators', gateway.uuid, 'things', thing.uuid).get();
+
+        expect(user.value.email).toBe(thing.value.email);
+
+        const token = Object.values(simulationSlice.slice('simulators', auth0.uuid, 'things').get())[0];
 
         expect(token.value.email).toBe(thing.value.email);
       });
 
       it('should create user in vendor simulator', async () => {
-        await subscription.next();
-        await subscription.next();
         const simulation = simulationContext.atom.slice('simulations', result.uuid, 'simulation').get();
 
         expect(simulation.simulators.auth0.store?.getAll()).toHaveLength(1);

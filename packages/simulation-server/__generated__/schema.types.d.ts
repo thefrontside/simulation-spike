@@ -117,9 +117,10 @@ export interface NexusGenArgTypes {
       simulator: NexusGenEnums['AvailableSimulators']; // AvailableSimulators!
     }
     createSimulation: { // args
-      name?: string | null; // String
+      name: string; // String!
       simulators: Array<NexusGenEnums['AvailableSimulators'] | null>; // [AvailableSimulators]!
       timeToLiveInMS?: number | null; // Int
+      uuid?: string | null; // String
     }
   }
 }
