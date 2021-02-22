@@ -112,12 +112,12 @@ export interface NexusGenArgTypes {
   Mutation: {
     create: { // args
       attributes?: NexusGenScalars['KeyValuePair'] | null; // KeyValuePair
+      kind: string; // String!
       simulationID: string; // ID!
       simulator: NexusGenEnums['AvailableSimulators']; // AvailableSimulators!
-      type: string; // String!
     }
     createSimulation: { // args
-      name: string; // String!
+      name?: string | null; // String
       simulators: Array<NexusGenEnums['AvailableSimulators'] | null>; // [AvailableSimulators]!
       timeToLiveInMS?: number | null; // Int
     }

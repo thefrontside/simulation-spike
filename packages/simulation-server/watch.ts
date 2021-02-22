@@ -45,7 +45,7 @@ function writeOut(channel: Channel<string>, out: NodeJS.WriteStream) {
 function* buildAndRun(delay = 0) {
   try {
     yield timeout(delay);
-    const p = yield exec('ts-node src/schema.ts && tsc');
+    const p = yield exec('yarn generate');
     yield spawn(writeOut(p.stdout, process.stdout));
     yield spawn(writeOut(p.stderr, process.stderr));
     yield p.expect();

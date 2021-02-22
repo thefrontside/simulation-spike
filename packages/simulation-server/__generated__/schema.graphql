@@ -20,8 +20,8 @@ input CreateSimulationResult {
 scalar KeyValuePair
 
 type Mutation {
-  create(attributes: KeyValuePair, simulationID: ID!, simulator: AvailableSimulators!, type: String!): CreateResult
-  createSimulation(name: String!, simulators: [AvailableSimulators]!, timeToLiveInMS: Int): Simulation
+  create(attributes: KeyValuePair, kind: String!, simulationID: ID!, simulator: AvailableSimulators!): CreateResult
+  createSimulation(name: String, simulators: [AvailableSimulators]!, timeToLiveInMS: Int): Simulation
 }
 
 type Query {

@@ -8,11 +8,10 @@
   "scripts": {
     "clean": "rimraf __generated__ dist built",
     "generate": "ts-node src/schema.ts && tsc",
-    "schema": "resideo-babel-node ./src/schema.ts",
-    "build": "run-s generate tsc",
-    "start": "run-s bundle server",
-    "test": "yarn jest --useStderr",
-    "watch": "yarn ts-node  -P ./watch-tsconfig.json ./watch.ts"
+    "build": "tsc",
+    "start": "ts-node src/server/server.ts",
+    "test": "jest --useStderr",
+    "watch": "ts-node  -P ./watch-tsconfig.json ./watch.ts"
   },
   "devDependencies": {
     "@effection/events": "0.7.9",

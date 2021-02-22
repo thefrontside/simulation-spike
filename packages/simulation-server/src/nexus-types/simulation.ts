@@ -10,7 +10,7 @@ import {
   list,
   nonNull,
 } from '@nexus/schema';
-import { KeyValuePair } from '../scalars';
+import { KeyValuePair } from '../scalars/key-value-pair';
 
 export const Simulation = objectType({
   name: 'Simulation',
@@ -54,7 +54,7 @@ export const createSimulation = mutationType({
     t.field('createSimulation', {
       type: 'Simulation',
       args: {
-        name: nonNull(stringArg()),
+        name: stringArg(),
         simulators: nonNull(
           list(
             arg({
@@ -73,11 +73,11 @@ export const createSimulation = mutationType({
       args: {
         simulationID: nonNull(idArg()),
         simulator: nonNull(arg({ type: 'AvailableSimulators' })),
-        type: nonNull(stringArg()),
+        kind: nonNull(stringArg()),
         attributes: arg({ type: KeyValuePair }),
       },
-      async resolve(_, { simulationID, simulator, type, attributes }, ctx) {
-        return ctx.create({ simulationID, simulator, type, attributes });
+      async resolve(_, { simulationID, simulator, kind, attributes }, ctx) {
+        return ctx.create({ simulationID, simulator, kind, attributes });
       },
     });
   },

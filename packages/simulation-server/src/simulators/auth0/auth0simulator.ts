@@ -1,6 +1,6 @@
 import * as t from 'io-ts';
 import jwt from 'jsonwebtoken';
-import { uuid } from 'src/io-ts/uuid';
+import { uuid } from '../../io-ts/uuid';
 import { generateUUID4 } from '../../fakery/fakery';
 import { Simulator, Store } from '../../types';
 

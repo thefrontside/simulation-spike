@@ -77,7 +77,12 @@ export class SimulationContext {
 
     const simulator = simulation.simulators[tag];
 
-    simulationSlice.slice('simulators', simulator.uuid, 'things', thing.uuid).set(thing);
+    simulationSlice.slice('simulators', simulator.uuid, 'things').update((things) => ({
+      ...things,
+      [thing.uuid]: {
+        ...thing,
+      },
+    }));
 
     return {
       success: true,
