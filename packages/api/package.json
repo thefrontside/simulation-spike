@@ -1,0 +1,26 @@
+{
+  "name": "fake-api",
+  "version": "0.1.0",
+  "main": "dist/index.js",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc",
+    "generate": "ts-node src/schema && tsc",
+    "start": "ts-node src/server/server.ts"
+  },
+  "dependencies": {
+    "@nexus/schema": "^0.20.1",
+    "apollo-server-express": "^2.21.0",
+    "dayjs": "^1.10.4",
+    "graphql": "^15.5.0",
+    "graphql-iso-date": "^3.6.1",
+    "nexus": "^1.0.0",
+    "uuid": "^8.3.2"
+  },
+  "devDependencies": {
+    "@frontside/tsconfig": "^1.2.0",
+    "@types/graphql-iso-date": "^3.4.0",
+    "@types/uuid": "^8.3.0",
+    "ts-node": "^9.1.1"
+  }
+}

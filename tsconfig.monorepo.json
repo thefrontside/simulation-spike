@@ -1,0 +1,14 @@
+{
+  "files": [],
+  "references": [
+    {
+      "path": "./packages/simulation-server"
+    },
+    {
+      "path": "./packages/web"
+    },
+    {
+      "path": "./packages/api"
+    }
+  ]
+}

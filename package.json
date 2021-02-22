@@ -1,0 +1,48 @@
+{
+  "name": "simulation",
+  "version": "0.1.0",
+  "description": "test simulation",
+  "repository": "TBC",
+  "author": "Frontside Engineering <engineering@frontside.com>",
+  "license": "MIT",
+  "private": true,
+  "workspaces": {
+    "packages": [
+      "packages/simulation-server",
+      "packages/web",
+      "packages/api"
+    ],
+    "nohoist": [
+      "@bigtest/server/@types/node"
+    ]
+  },
+  "scripts": {
+    "build": "yarn workspaces run build",
+    "build:tsc": "tsc --build ./tsconfig.monorepo.json",
+    "clean:tsbuild": "find .  \\( -name node_modules -o -name dir2 -o -path name \\) -prune -false -o -name 'dist'  -exec rm -rf {} + -o -name '*.tsbuildinfo'  -exec rm -rf {} +",
+    "test": "CI=true yarn workspaces run test",
+    "start": "yarn build && yarn --cwd packages/website start",
+    "lint": "eslint 'packages/**/*.{ts,tsx,js}' -c ./packages/component-library/.eslintrc.json --ignore-path ./.eslintignore --fix",
+    "lint:js": "eslint --ext .js . -c ./packages/devtools/.eslintrc.json --ignore-path ./.eslintignore --fix",
+    "watch": "yarn build:tsc && yarn tsc -b ./tsconfig.monorepo.json --watch"
+  },
+  "volta": {
+    "node": "14.15.3",
+    "yarn": "1.22.10"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.8.0",
+    "@types/node": "^13.13.4"
+  },
+  "resolutions": {
+    "@definitelytyped/typescript-versions": "^0.0.40",
+    "@typescript-eslint/eslint-plugin": "^4.12.0",
+    "typescript": "^4.1.5",
+    "yargs-parser": "^13.1.2"
+  },
+  "dependencies": {
+    "@rehooks/local-storage": "^2.4.0",
+    "graphql-iso-date": "^3.6.1",
+    "run-s": "^0.0.0"
+  }
+}

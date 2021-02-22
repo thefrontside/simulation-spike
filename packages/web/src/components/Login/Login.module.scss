@@ -1,0 +1,10 @@
+@import '@cutting/component-library/src/styles/_index.scss';
+
+.main {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  margin-bottom: $spacing-x2;
+}

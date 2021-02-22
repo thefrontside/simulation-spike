@@ -1,0 +1,17 @@
+{
+  "extends": "@frontside/tsconfig",
+  "compilerOptions": {
+    "allowJs": false,
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "paths": {
+      "simulation-server": ["packages/simulation-server"],
+      "fake-api": ["packages/api/src"],
+      "web": ["packages/web/src"]
+    }
+  }
+}
