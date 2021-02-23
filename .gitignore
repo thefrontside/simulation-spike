@@ -9,3 +9,5 @@ dist
 .netlify
 
 .DS_store
+
+__generated__

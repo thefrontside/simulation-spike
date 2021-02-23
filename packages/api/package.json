@@ -5,6 +5,7 @@
   "license": "MIT",
   "scripts": {
     "build": "tsc",
+    "quick-start": "yarn generate && yarn start",
     "generate": "ts-node src/schema && tsc",
     "start": "ts-node src/server/server.ts"
   },

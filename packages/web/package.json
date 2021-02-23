@@ -4,6 +4,8 @@
   "main": "dist/index.js",
   "license": "MIT",
   "scripts": {
+    "build": "cutting static-build",
+    "generate": "echo noop",
     "start": "cutting devserver-start"
   },
   "devDependencies": {

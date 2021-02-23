@@ -1,11 +1,11 @@
 # Simulation Spike
 
-Monorepo with then main spike code in [simulation-server](./packages/simulation-server).
+Monorepo with the main spike code in the [simulation-server](./packages/simulation-server) package.
 
 ## Quick start
 
 ```bash
-# starts watcher, control api and simulatrs
+# starts code watcher, control api and simulators
 
-
+yarn quick-start
 ```
