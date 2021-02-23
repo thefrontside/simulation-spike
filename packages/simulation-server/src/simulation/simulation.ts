@@ -4,6 +4,7 @@ import { generateUUID4 } from '../fakery/fakery';
 import { getArbitraryInstance } from '../fakery/arbitrary';
 import { Thing, Simulator, SimulatorTags } from '../types';
 import { assert } from 'assert-ts';
+import { simulatorStatus } from '../simulators/simulatorStatus';
 
 const getSimulator = <S extends SimulatorTags>(simulation: Simulation<S>) => async <SIMS extends SimulatorTags>(
   tag: SIMS,
@@ -55,6 +56,16 @@ export class Simulation<SIMS extends SimulatorTags> {
       kind,
       value: entity,
     };
+  }
+
+  simulatorsStatuses(): { kind: string; status: string }[] {
+    const statuses: { kind: string; status: string }[] = [];
+
+    for (const sim of Object.values<Simulator<SIMS>>(this.simulators)) {
+      statuses.push({ kind: sim.tag, status: simulatorStatus(sim) });
+    }
+
+    return statuses;
   }
 
   static async createSimulation<SSIMS extends SimulatorTags>(

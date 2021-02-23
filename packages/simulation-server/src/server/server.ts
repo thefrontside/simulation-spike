@@ -10,6 +10,7 @@ import { createAtom } from '@bigtest/atom';
 import { schema as gatewaySchema, createContext } from 'fake-api';
 import { getStore } from '../simulators/gateway/gatewaySimulator';
 import { createStatePublisher } from '../state-publisher/state-publisher';
+import { spawn } from 'effection';
 
 const initialState: SimulationsState = {
   simulations: {},
@@ -32,7 +33,7 @@ main(function* () {
 
   const simulationContext = new SimulationContext(atom, publisher);
 
-  // yield spawn(publisher.start());
+  yield spawn(publisher.start());
 
   const controlServer = new ApolloServer({
     ...ApolloServerDefaults,

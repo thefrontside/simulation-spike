@@ -5,13 +5,14 @@ import {
   SimulationsState,
   Simulator,
   SimulationState,
-  SimulationProps,
   Thing,
+  CreateSimulationResult,
 } from '../types';
 import { assert } from 'assert-ts';
 import { Slice } from '@bigtest/atom';
 import { StatePublisher } from '../state-publisher/state-publisher';
 import { getArbitraryInstance } from '../fakery/arbitrary';
+import { fullUrl } from '../utils/url';
 
 export const SimulatorsKey = 'simulators';
 
@@ -36,14 +37,14 @@ export class SimulationContext {
     simulators: SIMS | SIMS[],
     uuid?: string,
     timeToLiveInMs = 500,
-  ): Promise<SimulationProps> {
+  ): Promise<CreateSimulationResult> {
     if (typeof uuid !== 'undefined') {
       const existing = this.atom.slice('simulations', uuid).get();
 
       if (existing?.simulation) {
         return {
           uuid: existing.simulation.uuid,
-          name,
+          simulators: existing.simulation.simulatorsStatuses(),
         };
       }
     }
@@ -61,22 +62,25 @@ export class SimulationContext {
       return s;
     });
 
-    for (const simKey of Object.keys(simulation.simulators)) {
-      const tag = simKey as SIMS;
-      const simulator: Simulator<typeof tag> = simulation.simulators[tag];
+    for (const simulator of Object.values<Simulator<SIMS>>(simulation.simulators)) {
+      assert(!!simulator.parentUid, `no parentUid for simulator ${simulator.tag}`);
 
-      this.atom.slice('simulations', simulation.uuid, 'simulators').update((s) => ({
-        ...s,
-        [simulator.uuid]: {
-          simulator,
-          things: {},
-        },
-      }));
+      simulator.status = { kind: 'RUNNING', url: fullUrl(simulator.tag, simulator.parentUid) };
+
+      this.atom.slice('simulations', simulation.uuid, 'simulators').update((s) => {
+        return {
+          ...s,
+          [simulator.uuid]: {
+            simulator,
+            things: {},
+          },
+        };
+      });
     }
 
     return {
       uuid: simulation.uuid,
-      name,
+      simulators: simulation.simulatorsStatuses(),
     };
   }
 
@@ -134,7 +138,7 @@ export class SimulationContext {
       const type = sim.getIntermediateType(kind);
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const attributes: any = getArbitraryInstance(type);
+      const attributes = getArbitraryInstance(type) as any;
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       for (const key of Object.keys(thing.value as any)) {

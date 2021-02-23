@@ -8,6 +8,7 @@ import { Simulator, Store } from '../../types';
 import { schema, db } from 'fake-api';
 import { filterNexusQueryFromSchema } from './getSchemaFromNexus';
 import { generateUUID4 } from '../../fakery/fakery';
+import { fullUrl } from '../../utils/url';
 
 const PrimitiveMap = {
   String: t.string,
@@ -28,6 +29,7 @@ export const getStore = (): Database => {
 
 export const gatewayFactory = (): Simulator<'gateway'> => {
   return {
+    status: { kind: 'IDLE' },
     uuid: generateUUID4(),
     tag: 'gateway',
     thingMap: {

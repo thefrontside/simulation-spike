@@ -15,8 +15,7 @@ export type SimulationEvents = {
 
 export type StateChangedEvents = {
   kind: 'THING_CREATED';
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  thing: Thing<any>;
+  thing: Thing;
 };
 
 export type StateEvents = SimulationEvents | StateChangedEvents;
@@ -44,10 +43,7 @@ export function createStatePublisher(atom: Slice<SimulationsState>): StatePublis
 
         channel.send(message);
 
-        for (const simKey of Object.keys(simulation.simulators)) {
-          const tag = simKey as SimulatorTags;
-          const simulator = simulation.simulators[tag];
-
+        for (const simulator of Object.values(simulation.simulators)) {
           yield fork(
             map(
               atom.slice('simulations', simulation.uuid, 'simulators', simulator.uuid, 'things'),

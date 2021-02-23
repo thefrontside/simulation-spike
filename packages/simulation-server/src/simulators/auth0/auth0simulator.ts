@@ -21,6 +21,7 @@ type Auth0Keys = keyof typeof auth0Schema;
 
 export const auth0Factory = (): Simulator<'auth0'> => {
   return {
+    status: { kind: 'IDLE' },
     uuid: generateUUID4(),
     tag: 'auth0',
     thingMap: {

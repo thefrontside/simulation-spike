@@ -1,15 +1,4 @@
-import {
-  objectType,
-  mutationType,
-  enumType,
-  stringArg,
-  intArg,
-  arg,
-  idArg,
-  inputObjectType,
-  list,
-  nonNull,
-} from '@nexus/schema';
+import { objectType, mutationType, enumType, stringArg, intArg, arg, idArg, list, nonNull } from '@nexus/schema';
 import { KeyValuePair } from '../scalars';
 
 export const Simulation = objectType({
@@ -42,17 +31,30 @@ export const AvailableSimulators = enumType({
   members: ['gateway', 'auth0'],
 });
 
-export const CreateSimulationResult = inputObjectType({
+export const SimulatorStatus = objectType({
+  name: 'SimulatorStatus',
+  definition(t) {
+    t.field('kind', {
+      type: 'String',
+    });
+    t.string('status');
+  },
+});
+
+export const CreateSimulationResult = objectType({
   name: 'CreateSimulationResult',
   definition(t) {
     t.string('uuid');
+    t.field('simulators', {
+      type: list('SimulatorStatus'),
+    });
   },
 });
 
 export const createSimulation = mutationType({
   definition(t) {
     t.field('createSimulation', {
-      type: 'Simulation',
+      type: 'CreateSimulationResult',
       args: {
         name: nonNull(stringArg()),
         simulators: nonNull(

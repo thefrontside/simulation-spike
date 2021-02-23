@@ -8,7 +8,7 @@ export type SimulatorTags = 'auth0' | 'gateway';
 
 export type SimulatorState = {
   simulator: Simulator<SimulatorTags>;
-  things: Record<string, Thing<any>>;
+  things: Record<string, Thing>;
 };
 
 export type SimulationState = {
@@ -17,9 +17,7 @@ export type SimulationState = {
 };
 
 export type SimulationsState = {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   simulations: Record<string, SimulationState>;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 };
 
 export interface Persistable {
@@ -27,7 +25,7 @@ export interface Persistable {
   parentUid?: string;
 }
 
-export type Thing<T = unknown> = Persistable & {
+export type Thing<T = any> = Persistable & {
   kind: string;
   value: T;
 };
@@ -50,6 +48,8 @@ export interface Scenario<Tag extends string = string> {
   run(): void;
 }
 
+export type SimulatorStatus = { kind: 'IDLE' } | { kind: 'RUNNING'; url: string } | { kind: 'ERROR'; error: Error };
+
 export type Simulator<Tag extends SimulatorTags> = Persistable & {
   uuid: string;
   tag: Tag;
@@ -59,15 +59,18 @@ export type Simulator<Tag extends SimulatorTags> = Persistable & {
   getIntermediateType<K extends string>(k: K): t.TypeC<any>;
   create<T extends { id: string }>(tag: string, attributes: any): T;
   thingMap: Record<string, string>;
+  status: SimulatorStatus;
 };
 
 export type SimulationProps = { uuid: string; name: string };
 
-export type SimulationResult = {
-  success: boolean;
-  message: string;
+export type CreateSimulationResult = {
+  uuid: string;
+  simulators: { kind: string; status: string }[];
 };
 
-export type CreateResult = SimulationResult & {
-  attributes: Thing<any>;
+export type CreateResult = {
+  success: boolean;
+  message: string;
+  attributes: Thing;
 };
