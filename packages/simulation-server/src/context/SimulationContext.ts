@@ -1,11 +1,32 @@
 import { Simulation } from '../simulation/simulation';
-import { SimulatorTags, CreateResult, SimulationsState, Simulator, SimulationState, SimulationProps } from '../types';
+import {
+  SimulatorTags,
+  CreateResult,
+  SimulationsState,
+  Simulator,
+  SimulationState,
+  SimulationProps,
+  Thing,
+} from '../types';
 import { assert } from 'assert-ts';
 import { Slice } from '@bigtest/atom';
 import { StatePublisher } from '../state-publisher/state-publisher';
 import { getArbitraryInstance } from '../fakery/arbitrary';
 
 export const SimulatorsKey = 'simulators';
+
+const updateSimulatorThings = (atom: Slice<SimulationsState>) => (simulationUuid: string) => (
+  simulatorUuid: string,
+  thing: Thing,
+) =>
+  atom.slice('simulations', simulationUuid, 'simulators', simulatorUuid, 'things').update((s) => {
+    s[thing.uuid] = {
+      ...(s[thing.uuid] || {}),
+      ...thing,
+    };
+
+    return s;
+  });
 
 export class SimulationContext {
   constructor(public atom: Slice<SimulationsState>, public publisher: StatePublisher) {}
@@ -32,12 +53,10 @@ export class SimulationContext {
     const simulation = await Simulation.createSimulation<SIMS>(name, simulators, uuid, timeToLiveInMs);
 
     this.atom.slice('simulations').update((s) => {
-      if (typeof s[simulation.uuid] === 'undefined') {
-        s[simulation.uuid] = ({
-          simulation,
-          simulators: {},
-        } as unknown) as SimulationState;
-      }
+      s[simulation.uuid] = ({
+        simulation,
+        simulators: {},
+      } as unknown) as SimulationState;
 
       return s;
     });
@@ -92,13 +111,7 @@ export class SimulationContext {
 
     const simulatorsSlice = simulationSlice.slice('simulators');
 
-    simulatorsSlice.slice(simulator.uuid, 'things').update((s) => {
-      if (typeof s[thing.uuid] === 'undefined') {
-        s[thing.uuid] = { ...thing };
-      }
-
-      return s;
-    });
+    updateSimulatorThings(this.atom)(simulation.uuid)(simulator.uuid, thing);
 
     for (const [key, simState] of Object.entries(simulatorsSlice.get())) {
       const sim = simState.simulator;
@@ -141,7 +154,7 @@ export class SimulationContext {
 
       assert(!!parentUid, `no parentUid on simulator ${sim.uuid}`);
 
-      this.atom.slice('simulations', parentUid, 'simulators', sim.uuid, 'things', newThing.uuid).set(newThing);
+      updateSimulatorThings(this.atom)(simulation.uuid)(sim.uuid, newThing);
     }
 
     // console.dir('gateway');

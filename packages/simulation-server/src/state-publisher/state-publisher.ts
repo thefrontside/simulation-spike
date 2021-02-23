@@ -94,7 +94,7 @@ export function createStatePublisher(atom: Slice<SimulationsState>): StatePublis
                   const type = simulatorSlice.get().getIntermediateType(kind);
 
                   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  const attributes: any = getArbitraryInstance(type);
+                  const attributes = getArbitraryInstance(type) as any;
 
                   for (const key of Object.keys(thing.value)) {
                     if (attributes[key]) {

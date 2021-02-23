@@ -1,19 +1,7 @@
-import * as t from 'io-ts';
 import jwt from 'jsonwebtoken';
-import { uuid } from '../../io-ts/uuid';
 import { generateUUID4 } from '../../fakery/fakery';
 import { Simulator, Store } from '../../types';
-
-const TokenModel = t.type({
-  id: uuid,
-  firstName: t.string,
-  lastName: t.string,
-  email: t.string,
-  status: t.union([t.literal('active'), t.literal('inactive')]),
-  token: t.string,
-});
-
-type Token = t.TypeOf<typeof TokenModel>;
+import { Token } from './token';
 
 const Pluralize = {
   Token: 'tokens',
@@ -26,7 +14,7 @@ export const tokenStore: { tokens: Token[] } = {
 };
 
 const auth0Schema = {
-  Token: TokenModel,
+  Token: Token,
 };
 
 type Auth0Keys = keyof typeof auth0Schema;
@@ -41,7 +29,7 @@ export const auth0Factory = (): Simulator<'auth0'> => {
     getIntermediateType<K>(k: K) {
       switch (k) {
         case ('Token' as unknown) as K:
-          return TokenModel;
+          return Token;
         default:
           throw new Error(`unknown auth0 type ${k}`);
       }

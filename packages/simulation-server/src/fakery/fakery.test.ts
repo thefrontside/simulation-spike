@@ -2,7 +2,6 @@ import * as t from 'io-ts';
 import * as fc from 'fast-check';
 import { getArbitrary } from './arbitrary';
 import { date } from '../io-ts/date';
-import dayjs from 'dayjs';
 
 describe('fakery', () => {
   fc.configureGlobal({ seed: 0, numRuns: 5 });
