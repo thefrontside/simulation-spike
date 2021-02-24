@@ -1,73 +1,70 @@
-import jwt from 'jsonwebtoken';
 import type { Express } from 'express';
 import { tokenStore } from './auth0simulator';
-import { SimulationsState } from 'src/types';
+import type { SimulationsState } from '../../types';
 import { Slice } from '@bigtest/atom';
 import { Request, Response, NextFunction } from 'express';
+import { iframeResponse } from './htmlResponse';
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const addRoutes = (atom: Slice<SimulationsState>) => (app: Express): void => {
   const middleware = (req: Request, res: Response, next: NextFunction) => {
-    // console.dir('middleware');
+    console.dir('middleware');
 
-    if (!req.url.startsWith('/auth0')) {
-      next();
-      return;
-    }
+    // if (!req.url.startsWith('/auth0')) {
+    //   next();
+    //   return;
+    // }
 
-    const simulationId = req.params['simulation_id'];
-    const simulations = Object.values(atom.slice('simulations').get());
-    const simulation = simulations.find(({ simulation }) => simulation.uuid === simulationId);
+    // const simulationId = req.params['simulation_id'];
+    // const simulations = Object.values(atom.slice('simulations').get());
+    // const simulation = simulations.find(({ simulation }) => simulation.uuid === simulationId);
 
-    if (typeof simulation === 'undefined') {
-      console.dir(`no simulation for ${simulationId}`);
-      res.status(401).send('unauthorised');
-      return;
-    }
+    // if (typeof simulation === 'undefined') {
+    //   console.dir(`no simulation for ${simulationId}`);
+    //   res.status(401).send('unauthorised');
+    //   return;
+    // }
 
     next();
   };
 
   app.get('/auth0/:simulation_id/tokens', middleware, function (req, res) {
+    console.dir('tokens');
     return res.json(tokenStore.tokens);
   });
 
   app.get('/auth0/:simulation_id/authorize', middleware, (req, res) => {
     console.log('/authorize');
-    console.dir(req.url);
-    console.dir(req.url.search);
+    console.dir(req.query);
 
-    res.status(401).send('unauthorised');
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { client_id, redirect_uri, scope, state } = req.query;
+
+    if (!redirect_uri) {
+      return res.status(403).send('unauthorised');
+    }
+    // const oauth = {
+    //   id_token: string;
+    //   access_token: string;
+    //   refresh_token?: string;
+    //   expires_in: number;
+    //   scope;
+    // }
+
+    res.set('Content-Type', 'text/html');
+    return res.status(200).send(Buffer.from(iframeResponse({ code: 'aaaa', state: state as string })));
   });
 
-  app.post('/auth0/:simulation_id/token', middleware, function (req, res) {
-    if (!req.body.email || !req.body.password) {
-      console.log('Body is invalid!');
-      return res.status(400).send('Email or password is missing!');
-    }
-
-    const token = jwt.sign(
-      {
-        user_id: `auth0|${req.body.email}`,
-      },
-      'auth0-mock',
-    );
-    console.log(`Signed token for ${req.body.email}`);
-    return res.json({ token });
-  });
-
-  app.post('/auth0/:simulation_id/tokeninfo', middleware, function (req, res) {
-    if (!req.body.id_token) {
-      console.log('No token given in the body!');
-      return res.status(401).send('missing id_token');
-    }
-    const data = jwt.decode(req.body.id_token);
-    if (data) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      console.log(`Return token data from ${(data as any).user_id}`);
-      return res.json(data);
-    } else {
-      console.log('The token was invalid and could not be decoded!');
-      return res.status(401).send('invalid id_token');
-    }
+  app.post('/auth0/:simulation_id/oauth/token', middleware, function (req, res) {
+    // const response = {
+    //   grant_type: 'password',
+    //   username,
+    //   password,
+    //   audience,
+    //   scope,
+    //   client_id,
+    //   client_secret,
+    // };
+    return res.status(401).send('unauthorised');
   });
 };

@@ -5,8 +5,6 @@ import { LoadingOverlay } from '@cutting/component-library';
 export const PrivateRoute = ({ children, ...rest }: RouteProps): JSX.Element => {
   const { isLoading, error, isAuthenticated } = useAuth0();
 
-  console.dir(isLoading);
-
   if (isLoading) {
     return <LoadingOverlay busy={true} />;
   }

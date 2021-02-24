@@ -3,13 +3,14 @@ const { createProxyMiddleware } = require('http-proxy-middleware');
 
 module.exports = function (app) {
   app.use(
-    '/oauth',
-    createProxyMiddleware({
-      target: 'https://localhost:3000',
-      changeOrigin: true,
-      logLevel: 'debug',
-      protocolRewrite: 'http',
-    }),
+    '/auth0',
+    createProxyMiddleware(
+      (pathname) => {
+        console.dir(pathname);
+        return pathname.includes('auth0');
+      },
+      { target: 'http://localhost:3000', protocolRewrite: 'http', changeOrigin: true, logLevel: 'debug' },
+    ),
   );
   app.use(
     '/api',

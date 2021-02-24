@@ -1,11 +1,11 @@
 import { FC } from 'react';
 import { Router, Route, Switch } from 'react-router-dom';
 import { Login } from 'src/components/Login/Login';
-import { createBrowserHistory } from 'history';
+import { history } from 'src/history/history';
+import { PrivateRoute } from 'src/Routes/PrivateRoute';
+import { Main } from 'src/components/Main/Main';
 
 import { UnAuthorised } from 'src/components/UnAuthorised/UnAuthorised';
-
-const history = createBrowserHistory();
 
 export const Routes: FC = ({ children }) => (
   <Router history={history}>
@@ -13,9 +13,13 @@ export const Routes: FC = ({ children }) => (
       <Route path="/login">
         <Login />
       </Route>
+
       <Route path="/unauthorised">
         <UnAuthorised />
       </Route>
+      <PrivateRoute path="/" exact>
+        <Main />
+      </PrivateRoute>
     </Switch>
     {children}
   </Router>
