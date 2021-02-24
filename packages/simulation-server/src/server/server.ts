@@ -49,7 +49,7 @@ main(function* () {
 
   const app = express();
 
-  addRoutes(app);
+  addRoutes(atom)(app);
 
   controlServer.applyMiddleware({ app });
   gatewayServer.applyMiddleware({ app, path: '/gateway/:simulation_id' });

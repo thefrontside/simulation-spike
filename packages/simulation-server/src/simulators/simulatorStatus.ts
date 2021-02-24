@@ -5,7 +5,7 @@ export const simulatorStatus = <S extends SimulatorTags>(simulator: Simulator<S>
     case 'IDLE':
       return 'not running';
     case 'RUNNING':
-      return `The ${simulator.tag} is running on ${simulator.status.url}`;
+      return `The ${simulator.tag} is running simulator on ${simulator.status.url}`;
     case 'ERROR':
       return `The ${simulator.tag} crashed with ${simulator.status.error}`;
   }

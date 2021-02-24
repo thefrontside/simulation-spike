@@ -1,13 +1,26 @@
-import { useAuth } from 'src/hooks/useAuth';
+import { useAuth0 } from '@auth0/auth0-react';
 import { Redirect, Route, RouteProps } from 'react-router-dom';
+import { LoadingOverlay } from '@cutting/component-library';
 
 export const PrivateRoute = ({ children, ...rest }: RouteProps): JSX.Element => {
-  const auth = useAuth();
+  const { isLoading, error, isAuthenticated } = useAuth0();
+
+  console.dir(isLoading);
+
+  if (isLoading) {
+    return <LoadingOverlay busy={true} />;
+  }
+
+  if (error) {
+    console.error(error);
+    return <div>Oh no....{error.message}</div>;
+  }
+
   return (
     <Route
       {...rest}
       render={({ location }) =>
-        auth ? (
+        isAuthenticated ? (
           children
         ) : (
           <Redirect

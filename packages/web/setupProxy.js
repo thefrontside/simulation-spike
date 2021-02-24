@@ -5,9 +5,10 @@ module.exports = function (app) {
   app.use(
     '/oauth',
     createProxyMiddleware({
-      target: 'http://localhost:5000',
+      target: 'https://localhost:3000',
       changeOrigin: true,
       logLevel: 'debug',
+      protocolRewrite: 'http',
     }),
   );
   app.use(

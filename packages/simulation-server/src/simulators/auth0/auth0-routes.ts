@@ -1,13 +1,45 @@
 import jwt from 'jsonwebtoken';
 import type { Express } from 'express';
 import { tokenStore } from './auth0simulator';
+import { SimulationsState } from 'src/types';
+import { Slice } from '@bigtest/atom';
+import { Request, Response, NextFunction } from 'express';
 
-export const addRoutes = (app: Express): void => {
-  app.get('/auth0/:simulation_id/tokens', function (req, res) {
+export const addRoutes = (atom: Slice<SimulationsState>) => (app: Express): void => {
+  const middleware = (req: Request, res: Response, next: NextFunction) => {
+    // console.dir('middleware');
+
+    if (!req.url.startsWith('/auth0')) {
+      next();
+      return;
+    }
+
+    const simulationId = req.params['simulation_id'];
+    const simulations = Object.values(atom.slice('simulations').get());
+    const simulation = simulations.find(({ simulation }) => simulation.uuid === simulationId);
+
+    if (typeof simulation === 'undefined') {
+      console.dir(`no simulation for ${simulationId}`);
+      res.status(401).send('unauthorised');
+      return;
+    }
+
+    next();
+  };
+
+  app.get('/auth0/:simulation_id/tokens', middleware, function (req, res) {
     return res.json(tokenStore.tokens);
   });
 
-  app.post('/auth0/:simulation_id/token', function (req, res) {
+  app.get('/auth0/:simulation_id/authorize', middleware, (req, res) => {
+    console.log('/authorize');
+    console.dir(req.url);
+    console.dir(req.url.search);
+
+    res.status(401).send('unauthorised');
+  });
+
+  app.post('/auth0/:simulation_id/token', middleware, function (req, res) {
     if (!req.body.email || !req.body.password) {
       console.log('Body is invalid!');
       return res.status(400).send('Email or password is missing!');
@@ -23,7 +55,7 @@ export const addRoutes = (app: Express): void => {
     return res.json({ token });
   });
 
-  app.post('/auth0/:simulation_id/tokeninfo', function (req, res) {
+  app.post('/auth0/:simulation_id/tokeninfo', middleware, function (req, res) {
     if (!req.body.id_token) {
       console.log('No token given in the body!');
       return res.status(401).send('missing id_token');
