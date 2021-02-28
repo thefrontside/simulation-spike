@@ -7,6 +7,7 @@ import { Routes } from './Routes/Routes';
 import { Auth0Provider } from '@auth0/auth0-react';
 import { Auth } from './auth0_config';
 import { history } from 'src/history/history';
+import { ErrorBoundary } from './components/ErrorBoundary/ErrorBoundary';
 
 const queryClient = new QueryClient();
 
@@ -34,11 +35,13 @@ const Auth0: FC = ({ children }) => {
 export const App: FC = ({ children }) => {
   return (
     <ApplicationLayout className={styles.container}>
-      <Auth0>
-        <Routes>
-          <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-        </Routes>
-      </Auth0>
+      <ErrorBoundary>
+        <Auth0>
+          <Routes>
+            <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+          </Routes>
+        </Auth0>
+      </ErrorBoundary>
     </ApplicationLayout>
   );
 };

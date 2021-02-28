@@ -53,13 +53,12 @@ export const fakerToArb = <T>(fakerGenerator: any): fc.Arbitrary<T> => {
     });
 };
 
-// TODO: deteministic uuids
-export const generateUUID4 = (): string => v4(); //fc.sample(fc.uuidV(4))[0] as string;
+export const generateUUID4 = (): string => fc.sample(fc.uuidV(4))[0] as string;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const loremIpsumArb = (): fc.Arbitrary<any> =>
   fc
-    .infiniteStream(fc.double({ next: true }).noBias())
+    .infiniteStream(fc.double().noBias())
     .noShrink()
     .map((s) => {
       const rng = () => s.next().value; // prng like Math.random but controlled by fast-check
