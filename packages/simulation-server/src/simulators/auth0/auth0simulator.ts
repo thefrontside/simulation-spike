@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
-import { generateUUID4 } from '../../fakery/fakery';
 import { Simulator, Store } from '../../types';
 import { Token } from './token';
+import { v4 } from 'uuid';
 
 const Pluralize = {
   Token: 'tokens',
@@ -22,7 +22,7 @@ type Auth0Keys = keyof typeof auth0Schema;
 export const auth0Factory = (): Simulator<'auth0'> => {
   return {
     status: { kind: 'IDLE' },
-    uuid: generateUUID4(),
+    uuid: v4(),
     tag: 'auth0',
     thingMap: {
       User: 'Token',

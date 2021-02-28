@@ -8,9 +8,12 @@ import { addRoutes } from '../simulators/auth0/auth0-routes';
 import { main } from '@effection/node';
 import { createAtom } from '@bigtest/atom';
 import { schema as gatewaySchema, createContext } from 'fake-api';
-import { getStore } from '../simulators/gateway/gatewaySimulator';
+import { db } from '../simulators/gateway/gatewaySimulator';
 import { createStatePublisher } from '../state-publisher/state-publisher';
 import { spawn } from 'effection';
+// import * as fc from 'fast-check';
+
+// fc.configureGlobal({ seed: 0 });
 
 const initialState: SimulationsState = {
   simulations: {},
@@ -24,7 +27,7 @@ export const ApolloServerDefaults: Pick<ApolloServerConfig, 'playground' | 'intr
 
 const port = process.env.PORT || 3000;
 
-const createGatewayContext = createContext.bind(undefined, getStore());
+const createGatewayContext = createContext.bind(undefined, db);
 
 main(function* () {
   const atom = createAtom(initialState);

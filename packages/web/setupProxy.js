@@ -6,7 +6,6 @@ module.exports = function (app) {
     '/auth0',
     createProxyMiddleware(
       (pathname) => {
-        console.dir(pathname);
         return pathname.includes('auth0');
       },
       { target: 'http://localhost:3000', protocolRewrite: 'http', changeOrigin: true, logLevel: 'debug' },

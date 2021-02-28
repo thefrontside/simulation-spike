@@ -2,7 +2,10 @@ import express from 'express';
 import { ApolloServer } from 'apollo-server-express';
 import schema from '../schema';
 import { createContext } from '../context/context';
-import { db } from '../db/database';
+import { DB } from '../db/database';
+import { v4 } from 'uuid';
+
+export const db = new DB(() => v4());
 
 const getContext = createContext.bind(undefined, db);
 

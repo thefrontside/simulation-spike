@@ -1,10 +1,10 @@
 import { gatewayFactory } from '../simulators/gateway/gatewaySimulator';
 import { auth0Factory } from '../simulators/auth0/auth0simulator';
-import { generateUUID4 } from '../fakery/fakery';
 import { getArbitraryInstance } from '../fakery/arbitrary';
-import { Thing, Simulator, SimulatorTags } from '../types';
+import { Thing, Simulator, SimulatorTags, SimulationSimulatorStatuses } from '../types';
 import { assert } from 'assert-ts';
-import { simulatorStatus } from '../simulators/simulatorStatus';
+import { v4 } from 'uuid';
+import { generateUUID4 } from '../fakery/fakery';
 
 const getSimulator = <S extends SimulatorTags>(simulation: Simulation<S>) => async <SIMS extends SimulatorTags>(
   tag: SIMS,
@@ -21,9 +21,9 @@ const getSimulator = <S extends SimulatorTags>(simulation: Simulation<S>) => asy
 
 export class Simulation<SIMS extends SimulatorTags> {
   public simulators: Record<SIMS, Simulator<SIMS>>;
-  public readonly uuid;
+  public readonly uuid: string;
   constructor(public name: string, uuid?: string, public timeToLiveInMs: number = 500) {
-    this.uuid = uuid ?? generateUUID4();
+    this.uuid = uuid ?? v4();
     this.simulators = {} as Record<SIMS, Simulator<SIMS>>;
   }
 
@@ -58,11 +58,17 @@ export class Simulation<SIMS extends SimulatorTags> {
     };
   }
 
-  simulatorsStatuses(): { kind: string; status: string }[] {
-    const statuses: { kind: string; status: string }[] = [];
+  simulatorsStatuses(): SimulationSimulatorStatuses[] {
+    const statuses: SimulationSimulatorStatuses[] = [];
 
     for (const sim of Object.values<Simulator<SIMS>>(this.simulators)) {
-      statuses.push({ kind: sim.tag, status: simulatorStatus(sim) });
+      switch (sim.status.kind) {
+        case 'RUNNING':
+          statuses.push({ kind: sim.tag, status: sim.status.kind, url: sim.status.url });
+          break;
+        case 'ERROR':
+          statuses.push({ kind: sim.tag, status: sim.status.kind, error: sim.status.error });
+      }
     }
 
     return statuses;

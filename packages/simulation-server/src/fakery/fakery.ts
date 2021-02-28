@@ -2,6 +2,7 @@ import faker from 'faker';
 import * as fc from 'fast-check';
 import { loremIpsum } from 'lorem-ipsum';
 import dayjs, { OpUnitType } from 'dayjs';
+import { v4 } from 'uuid';
 
 export const stringProps = {
   firstname: faker.name.firstName,
@@ -52,12 +53,13 @@ export const fakerToArb = <T>(fakerGenerator: any): fc.Arbitrary<T> => {
     });
 };
 
-export const generateUUID4 = (): string => fc.sample(fc.uuidV(4), 1)[0] as string;
+// TODO: deteministic uuids
+export const generateUUID4 = (): string => v4(); //fc.sample(fc.uuidV(4))[0] as string;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const loremIpsumArb = (): fc.Arbitrary<any> =>
   fc
-    .infiniteStream(fc.double().noBias())
+    .infiniteStream(fc.double({ next: true }).noBias())
     .noShrink()
     .map((s) => {
       const rng = () => s.next().value; // prng like Math.random but controlled by fast-check

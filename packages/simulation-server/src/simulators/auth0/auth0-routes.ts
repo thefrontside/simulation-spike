@@ -8,28 +8,26 @@ import { iframeResponse } from './htmlResponse';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const addRoutes = (atom: Slice<SimulationsState>) => (app: Express): void => {
   const middleware = (req: Request, res: Response, next: NextFunction) => {
-    console.dir('middleware');
+    if (['auth0', 'gateway'].every((url) => req.url.startsWith(`/${url}`) === false)) {
+      next();
+      return;
+    }
 
-    // if (!req.url.startsWith('/auth0')) {
-    //   next();
-    //   return;
-    // }
+    const simulationId = req.params['simulation_id'];
 
-    // const simulationId = req.params['simulation_id'];
-    // const simulations = Object.values(atom.slice('simulations').get());
-    // const simulation = simulations.find(({ simulation }) => simulation.uuid === simulationId);
+    const simulations = Object.values(atom.slice('simulations').get());
+    const simulation = simulations.find(({ simulation }) => simulation.uuid === simulationId);
 
-    // if (typeof simulation === 'undefined') {
-    //   console.dir(`no simulation for ${simulationId}`);
-    //   res.status(401).send('unauthorised');
-    //   return;
-    // }
+    if (typeof simulation === 'undefined') {
+      console.log(`no simulation for ${simulationId}`);
+      res.status(401).send('unauthorised');
+      return;
+    }
 
     next();
   };
 
   app.get('/auth0/:simulation_id/tokens', middleware, function (req, res) {
-    console.dir('tokens');
     return res.json(tokenStore.tokens);
   });
 

@@ -6,7 +6,7 @@ import {
   Simulator,
   SimulationState,
   Thing,
-  CreateSimulationResult,
+  ActiveSimulators,
 } from '../types';
 import { assert } from 'assert-ts';
 import { Slice } from '@bigtest/atom';
@@ -37,7 +37,7 @@ export class SimulationContext {
     simulators: SIMS | SIMS[],
     uuid?: string,
     timeToLiveInMs = 500,
-  ): Promise<CreateSimulationResult> {
+  ): Promise<ActiveSimulators> {
     if (typeof uuid !== 'undefined') {
       const existing = this.atom.slice('simulations', uuid).get();
 

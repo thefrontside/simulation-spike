@@ -127,5 +127,5 @@ export function getArbitrary<T extends HasArbitrary>(current: T | [string | unde
 }
 
 export function getArbitraryInstance<T extends HasArbitrary, R>(current: T | [string | undefined, T]): R {
-  return (fc.sample(getArbitrary(current), 1)[0] as unknown) as R;
+  return (fc.sample(getArbitrary(current))[0] as unknown) as R;
 }

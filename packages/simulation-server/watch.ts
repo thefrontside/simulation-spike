@@ -4,12 +4,11 @@ import type { Channel } from '@effection/channel';
 import { spawn, timeout } from 'effection';
 import { on } from '@effection/events';
 import { watch } from 'chokidar';
-import rimraf from 'rimraf';
 
 main(function* () {
   const watcher = watch('./src/**/*.ts', { ignoreInitial: true });
   try {
-    let process = yield spawn(buildAndRun());
+    let process = yield spawn(buildAndRun(500));
 
     const events: Subscription<[string]> = yield on(watcher, 'all');
 
@@ -43,14 +42,18 @@ function writeOut(channel: Channel<string>, out: NodeJS.WriteStream) {
   });
 }
 
+function* executeAndOut(command: string) {
+  const p = yield exec(`yarn ${command}`);
+  yield spawn(writeOut(p.stdout, process.stdout));
+  yield spawn(writeOut(p.stderr, process.stderr));
+  yield p.expect();
+}
+
 function* buildAndRun(delay = 0) {
   try {
+    yield executeAndOut('clean');
+    yield executeAndOut('generate');
     yield timeout(delay);
-    rimraf.sync('./tsconfig.tsbuildinfo');
-    const p = yield exec('yarn generate');
-    yield spawn(writeOut(p.stdout, process.stdout));
-    yield spawn(writeOut(p.stderr, process.stderr));
-    yield p.expect();
     const server: StdIO = yield daemon('node dist/server/server.js');
     yield spawn(writeOut(server.stdout, process.stdout));
     yield spawn(writeOut(server.stderr, process.stderr));

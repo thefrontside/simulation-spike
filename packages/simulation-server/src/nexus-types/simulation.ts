@@ -1,6 +1,26 @@
 import { objectType, mutationType, enumType, stringArg, intArg, arg, idArg, list, nonNull } from '@nexus/schema';
 import { KeyValuePair } from '../scalars';
 
+export const AvailableSimulators = enumType({
+  name: 'AvailableSimulators',
+  members: ['gateway', 'auth0'],
+});
+
+export const SimulatorStatuses = enumType({
+  name: 'SimulatorStatuses',
+  members: ['IDLE', 'RUNNING', 'ERROR'],
+});
+
+export const ErrorDetails = objectType({
+  name: 'ErrorDetails',
+  definition(t) {
+    t.string('message');
+    t.field('stack', {
+      type: list('String'),
+    });
+  },
+});
+
 export const Simulation = objectType({
   name: 'Simulation',
   definition(t) {
@@ -26,18 +46,22 @@ export const CreateResult = objectType({
   },
 });
 
-export const AvailableSimulators = enumType({
-  name: 'AvailableSimulators',
-  members: ['gateway', 'auth0'],
-});
-
 export const SimulatorStatus = objectType({
   name: 'SimulatorStatus',
   definition(t) {
     t.field('kind', {
-      type: 'String',
+      type: 'AvailableSimulators',
     });
-    t.string('status');
+
+    t.field('status', {
+      type: 'SimulatorStatuses',
+    });
+
+    t.string('url');
+
+    t.field('error', {
+      type: 'ErrorDetails',
+    });
   },
 });
 

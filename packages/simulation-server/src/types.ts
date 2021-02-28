@@ -64,9 +64,16 @@ export type Simulator<Tag extends SimulatorTags> = Persistable & {
 
 export type SimulationProps = { uuid: string; name: string };
 
-export type CreateSimulationResult = {
+export type SimulationSimulatorStatuses = {
+  kind: SimulatorTags;
+  status: SimulatorStatus['kind'];
+  url?: string;
+  error?: Error;
+};
+
+export type ActiveSimulators = {
   uuid: string;
-  simulators: { kind: string; status: string }[];
+  simulators: SimulationSimulatorStatuses[];
 };
 
 export type CreateResult = {

@@ -1,14 +1,13 @@
-import type { Database } from 'fake-api';
 import { assert } from 'assert-ts';
 import { GraphQLObjectType } from 'graphql';
 import * as t from 'io-ts';
 import { uuid } from '../../io-ts/uuid';
 import { date } from '../../io-ts/date';
 import { Simulator, Store } from '../../types';
-import { schema, db } from 'fake-api';
+import { schema, DB } from 'fake-api';
 import { filterNexusQueryFromSchema } from './getSchemaFromNexus';
+import { v4 } from 'uuid';
 import { generateUUID4 } from '../../fakery/fakery';
-import { fullUrl } from '../../utils/url';
 
 const PrimitiveMap = {
   String: t.string,
@@ -23,14 +22,12 @@ const PrimitiveMap = {
 
 type GraphQlPrimitive = keyof typeof PrimitiveMap;
 
-export const getStore = (): Database => {
-  return db;
-};
+export const db = new DB(() => generateUUID4());
 
 export const gatewayFactory = (): Simulator<'gateway'> => {
   return {
     status: { kind: 'IDLE' },
-    uuid: generateUUID4(),
+    uuid: v4(),
     tag: 'gateway',
     thingMap: {
       Token: 'User',
@@ -70,6 +67,6 @@ export const gatewayFactory = (): Simulator<'gateway'> => {
       return this.store?.create(tag, attributes as any);
     },
     // purely for testing
-    store: (getStore() as unknown) as Store,
+    store: (db as unknown) as Store,
   };
 };

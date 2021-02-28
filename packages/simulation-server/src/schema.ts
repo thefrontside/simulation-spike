@@ -2,6 +2,9 @@ import { makeSchema } from '@nexus/schema';
 import { basename, join } from 'path';
 import * as types from './nexus-types/simulation';
 import * as scalars from './scalars/key-value-pair';
+// import * as fc from 'fast-check';
+
+// fc.configureGlobal({ seed: 0 });
 
 const cwd = process.cwd();
 
@@ -18,10 +21,6 @@ export const schema = makeSchema({
       {
         alias: 'ctx',
         source: join(cwd, 'dist/context/SimulationContext.d.ts'),
-      },
-      {
-        alias: 'scalars',
-        source: join(cwd, 'dist/scalars/key-value-pair.d.ts'),
       },
       {
         alias: 'types',

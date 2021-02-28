@@ -1,6 +1,4 @@
 import { GraphQLObjectType } from 'graphql';
-import * as uuid from 'uuid';
-import dayjs from 'dayjs';
 
 type ModelKeys = keyof Database['data'];
 
@@ -63,14 +61,12 @@ export class DB implements Database {
   }
 }
 
-export const db = new DB(() => uuid.v4());
-
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-db.create(undefined as any, {
-  email: 'bob@hughes.io',
-  firstName: 'bob',
-  lastName: 'hughes',
-  phone: '013010101',
-  createdAt: dayjs().subtract(20, 'days').toDate(),
-  updatedAt: dayjs().subtract(10, 'days').toDate(),
-});
+// db.create(undefined as any, {
+//   email: 'bob@hughes.io',
+//   firstName: 'bob',
+//   lastName: 'hughes',
+//   phone: '013010101',
+//   createdAt: dayjs().subtract(20, 'days').toDate(),
+//   updatedAt: dayjs().subtract(10, 'days').toDate(),
+// });
