@@ -1,4 +1,10 @@
-export const authorizationResponse = ({ state, code }: { state: string; code: string }): string => {
+import { Auth0QueryParams } from './types';
+
+export const authorizationResponse = ({
+  state,
+  code,
+  redirect_uri,
+}: Pick<Auth0QueryParams, 'state' | 'code' | 'redirect_uri'>): string => {
   return `
   <!DOCTYPE html>
     <html>
@@ -8,8 +14,7 @@ export const authorizationResponse = ({ state, code }: { state: string; code: st
       <body>
         <script type="text/javascript">
         (function(window, document) {
-          debugger
-          var targetOrigin = "https://localhost:5000";
+          var targetOrigin = "${redirect_uri}";
           var webMessageRequest = {};
           var authorizationResponse = {
             type: "authorization_response",

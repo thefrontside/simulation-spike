@@ -2,7 +2,6 @@ import faker from 'faker';
 import * as fc from 'fast-check';
 import { loremIpsum } from 'lorem-ipsum';
 import dayjs, { OpUnitType } from 'dayjs';
-import { v4 } from 'uuid';
 
 export const stringProps = {
   firstname: faker.name.firstName,

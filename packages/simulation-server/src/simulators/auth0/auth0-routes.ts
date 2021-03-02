@@ -3,12 +3,20 @@ import { tokenStore } from './auth0simulator';
 import type { SimulationsState } from '../../types';
 import { Slice } from '@bigtest/atom';
 import { Request, Response, NextFunction } from 'express';
-import { iframeResponse } from './htmlResponse';
+import { authorizationResponse } from './htmlResponse';
+import { Auth0QueryParams } from './types';
+import createJWKSMock from './jwt/create-jwt-mocks';
+
+const jwksOrigin = 'https://localhost:5000';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const addRoutes = (atom: Slice<SimulationsState>) => (app: Express): void => {
+  const jwksMock = createJWKSMock(jwksOrigin);
+
   const middleware = (req: Request, res: Response, next: NextFunction) => {
     if (['auth0', 'gateway'].every((url) => req.url.startsWith(`/${url}`) === false)) {
+      console.dir(`redirecting ${req.url}`);
+      console.dir(req.headers);
       next();
       return;
     }
@@ -20,7 +28,7 @@ export const addRoutes = (atom: Slice<SimulationsState>) => (app: Express): void
 
     if (typeof simulation === 'undefined') {
       console.log(`no simulation for ${simulationId}`);
-      res.status(401).send('unauthorised');
+      res.status(404).send('Not found');
       return;
     }
 
@@ -31,38 +39,76 @@ export const addRoutes = (atom: Slice<SimulationsState>) => (app: Express): void
     return res.json(tokenStore.tokens);
   });
 
+  app.get('/auth0/:simulation_id/userinfo', middleware, function (req, res) {
+    return res.json({ wut: '?' });
+  });
+
   app.get('/auth0/:simulation_id/authorize', middleware, (req, res) => {
     console.log('/authorize');
     console.dir(req.query);
+    console.dir(req.headers);
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { client_id, redirect_uri, scope, state } = req.query;
+    const { client_id, redirect_uri, scope, state, code_challenge } = req.query as Auth0QueryParams;
+
+    if (!client_id) {
+      return res.status(400).send('no client_id');
+    }
+
+    if (!scope) {
+      return res.status(400).send('no scope');
+    }
 
     if (!redirect_uri) {
       return res.status(403).send('unauthorised');
     }
-    // const oauth = {
-    //   id_token: string;
-    //   access_token: string;
-    //   refresh_token?: string;
-    //   expires_in: number;
-    //   scope;
-    // }
 
     res.set('Content-Type', 'text/html');
-    return res.status(200).send(Buffer.from(iframeResponse({ code: 'aaaa', state: state as string })));
+
+    const raw = authorizationResponse({ code: code_challenge, state, redirect_uri });
+
+    return res.status(200).send(Buffer.from(raw));
   });
 
   app.post('/auth0/:simulation_id/oauth/token', middleware, function (req, res) {
-    // const response = {
-    //   grant_type: 'password',
-    //   username,
-    //   password,
-    //   audience,
-    //   scope,
-    //   client_id,
-    //   client_secret,
-    // };
-    return res.status(401).send('unauthorised');
+    console.log('>>>>>>> /oauth/token <<<<<<<<<<<<<<<<<<');
+    console.dir(req.query);
+    console.dir(req.headers);
+    console.dir(req.body);
+    console.log('>>>>>>> /oauth/token <<<<<<<<<<<<<<<<<<');
+
+    const hours = 1;
+
+    const expiresIn = hours * 60 * 60 * 1000;
+
+    const issued = Date.now();
+
+    const accessToken = jwksMock.token({
+      alg: 'RS256',
+      typ: 'JWT',
+      iss: 'https://adfs.mycompany.com/adfs/services/trust',
+      exp: expiresIn,
+      iat: issued,
+    });
+
+    const idToken = jwksMock.token({
+      alg: 'RS256',
+      typ: 'JWT',
+      iss: 'https://adfs.mycompany.com/adfs/services/trust',
+      exp: expiresIn,
+      iat: issued,
+      mail: 'example@mycompany.com',
+    });
+
+    const result = {
+      access_token: accessToken,
+      id_token: idToken,
+      scope: 'openid profile email',
+      expires_in: 86400,
+      token_type: 'Bearer',
+    };
+
+    console.dir(result);
+
+    return res.status(200).json(result);
   });
 };

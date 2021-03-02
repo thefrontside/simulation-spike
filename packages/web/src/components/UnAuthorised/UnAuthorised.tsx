@@ -9,12 +9,7 @@ export const UnAuthorised: FC = () => {
     <section>
       <h1>Unauthorised</h1>
       <p>
-        <Button
-          buttonStyle="primary"
-          onClick={() => {
-            loginWithPopup();
-          }}
-        >
+        <Button buttonStyle="primary" onClick={loginWithPopup}>
           Log In
         </Button>
       </p>
