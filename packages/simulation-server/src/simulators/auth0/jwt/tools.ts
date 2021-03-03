@@ -112,6 +112,9 @@ export interface JwtPayload {
   nbf?: string;
   iat?: string;
   jti?: string;
+  alg?: string;
+  typ?: string;
+  mail?: string;
 }
 
 export const signJwt = (privateKey: forge.pki.PrivateKey, jwtPayload: JwtPayload, kid?: string): string => {

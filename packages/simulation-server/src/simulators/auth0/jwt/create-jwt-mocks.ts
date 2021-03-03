@@ -1,8 +1,8 @@
-import { createJWKS, createKeyPair, signJwt } from './tools';
+import { createJWKS, createKeyPair, JwtPayload, signJwt } from './tools';
 
 export type JWKSMock = {
   kid(): string;
-  token(token: Record<string, unknown>): string;
+  token(token: JwtPayload): string;
 };
 
 const createJWKSMock = (jwksOrigin: string): JWKSMock => {
@@ -16,7 +16,7 @@ const createJWKSMock = (jwksOrigin: string): JWKSMock => {
     kid() {
       return JWKS.keys[0].kid;
     },
-    token(token = {}) {
+    token(token: JwtPayload = {}) {
       return signJwt(privateKey, token, this.kid());
     },
   };

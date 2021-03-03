@@ -8,6 +8,7 @@ import { Auth0Provider } from '@auth0/auth0-react';
 import { Auth } from './auth0_config';
 import { history } from 'src/history/history';
 import { ErrorBoundary } from './components/ErrorBoundary/ErrorBoundary';
+import { scope } from '@fake/common';
 
 const queryClient = new QueryClient();
 
@@ -26,6 +27,7 @@ const Auth0: FC = ({ children }) => {
       clientId={Auth.clientId}
       redirectUri={window.location.origin}
       onRedirectCallback={onRedirectCallback}
+      scope={scope}
     >
       {children}
     </Auth0Provider>

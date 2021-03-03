@@ -5,4 +5,5 @@ export type Auth0QueryParams = {
   code_challenge: string;
   scope: string;
   client_id: string;
+  nonce: string;
 };

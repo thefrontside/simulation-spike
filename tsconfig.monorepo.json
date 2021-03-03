@@ -2,13 +2,16 @@
   "files": [],
   "references": [
     {
+      "path": "./packages/common"
+    },
+    {
+      "path": "./packages/api"
+    },
+    {
       "path": "./packages/simulation-server"
     },
     {
       "path": "./packages/web"
     },
-    {
-      "path": "./packages/api"
-    }
   ]
 }

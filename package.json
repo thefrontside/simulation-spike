@@ -8,9 +8,10 @@
   "private": true,
   "workspaces": {
     "packages": [
+      "packages/common",
+      "packages/api",
       "packages/simulation-server",
-      "packages/web",
-      "packages/api"
+      "packages/web"
     ],
     "nohoist": [
       "@bigtest/server/@types/node"

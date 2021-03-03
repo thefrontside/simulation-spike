@@ -1,7 +1,6 @@
 {
   "name": "web",
   "version": "0.1.0",
-  "type": "commonjs",
   "main": "dist/index.js",
   "license": "MIT",
   "scripts": {
@@ -22,6 +21,7 @@
     "@cutting/component-library": "^4.19.0",
     "@rehooks/local-storage": "^2.4.0",
     "axios": "^0.21.1",
+    "@fake/common": "0.1.0",
     "http-proxy-middleware": "^1.0.6",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",

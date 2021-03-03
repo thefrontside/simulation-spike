@@ -1,10 +1,20 @@
 import { Auth0QueryParams } from './types';
+import jsesc from 'jsesc';
 
-export const authorizationResponse = ({
+export const webMessage = ({
   state,
   code,
   redirect_uri,
-}: Pick<Auth0QueryParams, 'state' | 'code' | 'redirect_uri'>): string => {
+  nonce,
+}: Pick<Auth0QueryParams, 'state' | 'code' | 'redirect_uri' | 'nonce'>): string => {
+  const data = jsesc(
+    {
+      redirect_uri,
+      // web_message_uri: web_message_uri, // frames other than main
+      // web_message_target: web_message_target, // frames other than main
+    },
+    { json: true, isScriptContext: true },
+  );
   return `
   <!DOCTYPE html>
     <html>
@@ -12,10 +22,12 @@ export const authorizationResponse = ({
         <title>Authorization Response</title>
       </head>
       <body>
-        <script type="text/javascript">
+      <script ${nonce ? `nonce="${nonce}" ` : ''}type="application/javascript">
         (function(window, document) {
-          var targetOrigin = "${redirect_uri}";
+          var data = ${data};
+          var targetOrigin = data.redirect_uri;
           var webMessageRequest = {};
+          
           var authorizationResponse = {
             type: "authorization_response",
             response: {
@@ -48,6 +60,9 @@ export const authorizationResponse = ({
                 type: "relay_request"
               }, targetOrigin);
             } else {
+              console.dir(authorizationResponse);
+              console.dir(targetOrigin);
+              debugger
               mainWin.postMessage(authorizationResponse, targetOrigin);
             }
           })(this, this.document);

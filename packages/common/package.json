@@ -1,0 +1,13 @@
+{
+  "name": "@fake/common",
+  "version": "0.1.0",
+  "description": "common values",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "license": "MIT",
+  "private": false,
+  "scripts": {
+    "build": "tsc",
+    "generate": "yarn build"
+  }
+}

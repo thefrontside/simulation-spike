@@ -11,6 +11,8 @@ import { schema as gatewaySchema, createContext } from 'fake-api';
 import { db } from '../simulators/gateway/gatewaySimulator';
 import { createStatePublisher } from '../state-publisher/state-publisher';
 import { spawn } from 'effection';
+
+// import helmet from 'helmet';
 // import * as fc from 'fast-check';
 
 // fc.configureGlobal({ seed: 0 });
@@ -51,6 +53,14 @@ main(function* () {
   });
 
   const app = express();
+
+  // app.use(helmet());
+
+  app.use((_, res, next) => {
+    res.set('Pragma', 'no-cache');
+    res.set('Cache-Control', 'no-cache, no-store');
+    next();
+  });
 
   addRoutes(atom)(app);
 
