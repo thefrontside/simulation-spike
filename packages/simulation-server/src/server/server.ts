@@ -11,6 +11,19 @@ import { schema as gatewaySchema, createContext } from 'fake-api';
 import { db } from '../simulators/gateway/gatewaySimulator';
 import { createStatePublisher } from '../state-publisher/state-publisher';
 import { spawn } from 'effection';
+import fs from 'fs';
+import https, { ServerOptions } from 'https';
+import path from 'path';
+
+const cwd = process.cwd();
+
+const ssl: ServerOptions = {
+  key: fs.readFileSync(path.join(cwd, './certs/server_key.pem')),
+  cert: fs.readFileSync(path.join(cwd, './certs/server_cert.pem')),
+  requestCert: true,
+  rejectUnauthorized: false,
+  ca: [fs.readFileSync(path.join(cwd, './certs/server_cert.pem'))],
+};
 
 // import helmet from 'helmet';
 // import * as fc from 'fast-check';
@@ -54,6 +67,8 @@ main(function* () {
 
   const app = express();
 
+  const server = https.createServer(ssl, app);
+
   // app.use(helmet());
 
   app.use((_, res, next) => {
@@ -67,7 +82,7 @@ main(function* () {
   controlServer.applyMiddleware({ app });
   gatewayServer.applyMiddleware({ app, path: '/gateway/:simulation_id' });
 
-  app.listen({ port }, () => {
-    console.log(`🚀 Server ready at http://localhost:${port}/graphql`);
+  server.listen({ port }, () => {
+    console.log(`🚀 Server ready at https://localhost:${port}/graphql`);
   });
 });

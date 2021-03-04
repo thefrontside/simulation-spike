@@ -10,7 +10,7 @@
     "generate": "tsc && ts-node src/schema.ts",
     "build": "yarn clean && yarn generate",
     "run": "node dist/server/server.js",
-    "start": "yarn generate && yarn run",
+    "start": "yarn watch",
     "test": "yarn jest --useStderr",
     "watch": "NODE_ENV=development yarn ts-node  -P ./watch-tsconfig.json ./watch.ts"
   },
@@ -47,7 +47,6 @@
   },
   "dependencies": {
     "@bigtest/atom": "^0.12.0",
-    "@fake/common": "0.1.0",
     "apollo-server-express": "^2.21.0",
     "base64-url": "^2.3.3",
     "ejs": "^3.1.6",

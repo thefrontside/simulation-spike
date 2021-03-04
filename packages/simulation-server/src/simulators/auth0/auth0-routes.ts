@@ -6,7 +6,7 @@ import { Request, Response, NextFunction } from 'express';
 import { webMessage } from './webMessage';
 import { Auth0QueryParams } from './types';
 import createJWKSMock from './jwt/create-jwt-mocks';
-import { ourDomain, audience, scope } from '@fake/common';
+import { ourDomain, audience, scope } from './common';
 
 const alg = 'RS256';
 
@@ -55,6 +55,8 @@ export const addRoutes = (atom: Slice<SimulationsState>) => (app: Express): void
   //   email_verified: true,
   //   sub: 'auth0|603607f0286beb00699a58d2',
   // };
+
+  // openssl passphrase - pa55phra5e
 
   app.get('/auth0/:simulation_id/authorize', simulationMiddleware, (req, res) => {
     const { client_id, redirect_uri, scope, state, code_challenge, nonce } = req.query as Auth0QueryParams;

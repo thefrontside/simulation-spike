@@ -60,9 +60,9 @@ export const webMessage = ({
                 type: "relay_request"
               }, targetOrigin);
             } else {
+              console.log('ever so slightly differently')
               console.dir(authorizationResponse);
               console.dir(targetOrigin);
-              debugger
               mainWin.postMessage(authorizationResponse, targetOrigin);
             }
           })(this, this.document);
