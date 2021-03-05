@@ -23,6 +23,12 @@ export const addRoutes = (atom: Slice<SimulationsState>) => (app: Express): void
       return;
     }
 
+    console.log(`>>>>>>> ${req.url} <<<<<<<<<<<<<<<<<<`);
+    console.dir({ query: req.query });
+    console.dir({ headers: req.headers });
+    console.dir({ body: req.body });
+    console.log(`>>>>>>> ${req.url} <<<<<<<<<<<<<<<<<<`);
+
     // const simulationId = req.params['simulation_id'];
 
     // const simulations = Object.values(atom.slice('simulations').get());
@@ -56,27 +62,15 @@ export const addRoutes = (atom: Slice<SimulationsState>) => (app: Express): void
   //   sub: 'auth0|603607f0286beb00699a58d2',
   // };
 
-  // openssl passphrase - pa55phra5e
-
   app.get('/auth0/:simulation_id/authorize', simulationMiddleware, (req, res) => {
     const { client_id, redirect_uri, scope, state, code_challenge, nonce } = req.query as Auth0QueryParams;
 
-    console.log('((((((((/authorise)))))))))))))))');
-    console.dir(req.query);
-    console.dir(req.headers);
-    console.dir(req.body);
-    console.log('((((((((/authorise)))))))))))))))');
+    const required = { client_id, scope, redirect_uri } as const;
 
-    if (!client_id) {
-      return res.status(400).send('no client_id');
-    }
-
-    if (!scope) {
-      return res.status(400).send('no scope');
-    }
-
-    if (!redirect_uri) {
-      return res.status(403).send('unauthorised');
+    for (const key of Object.keys(required)) {
+      if (!required[key as keyof typeof required]) {
+        return res.status(400).send(`missing ${key}`);
+      }
     }
 
     res.removeHeader('X-Frame-Options');
@@ -89,12 +83,8 @@ export const addRoutes = (atom: Slice<SimulationsState>) => (app: Express): void
   });
 
   app.post('/auth0/:simulation_id/oauth/token', simulationMiddleware, function (req, res) {
-    console.log('>>>>>>> /oauth/token <<<<<<<<<<<<<<<<<<');
-    console.dir(req.query);
-    console.dir(req.headers);
-    console.dir(req.body);
-    console.log('>>>>>>> /oauth/token <<<<<<<<<<<<<<<<<<');
-
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { client_id, code_verifier, code, grant_type, redirect_uri } = req.body;
     const hours = 1;
 
     const expiresIn = hours * 60 * 60 * 1000;
@@ -116,8 +106,9 @@ export const addRoutes = (atom: Slice<SimulationsState>) => (app: Express): void
       iss: ourDomain,
       exp: expiresIn.toString(),
       iat: issued.toString(),
-      mail: 'example@mycompany.com',
+      mail: 'bob@gmail.com',
       aud: audience,
+      sub: 'subject field',
     });
 
     const result = {
@@ -127,8 +118,6 @@ export const addRoutes = (atom: Slice<SimulationsState>) => (app: Express): void
       expires_in: 86400,
       token_type: 'Bearer',
     };
-
-    console.dir(result);
 
     return res.status(200).json(result);
   });

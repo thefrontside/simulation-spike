@@ -1,6 +1,6 @@
 import type { Config as ApolloServerConfig } from 'apollo-server-core';
 import type { SimulationsState } from '../types';
-import express from 'express';
+import express, { json } from 'express';
 import { ApolloServer } from 'apollo-server-express';
 import { schema } from '../schema';
 import { SimulationContext } from '../context/SimulationContext';
@@ -14,6 +14,7 @@ import { spawn } from 'effection';
 import fs from 'fs';
 import https, { ServerOptions } from 'https';
 import path from 'path';
+import cors from 'cors';
 
 const cwd = process.cwd();
 
@@ -70,6 +71,8 @@ main(function* () {
 
   const app = express();
 
+  app.use(cors());
+
   const server = https.createServer(ssl, app);
 
   // app.use(helmet());
@@ -79,6 +82,8 @@ main(function* () {
     res.set('Cache-Control', 'no-cache, no-store');
     next();
   });
+
+  app.use(json());
 
   addRoutes(atom)(app);
 

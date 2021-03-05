@@ -11,8 +11,6 @@ import { ErrorBoundary } from './components/ErrorBoundary/ErrorBoundary';
 
 const queryClient = new QueryClient();
 
-console.dir(Auth.domain);
-
 const Auth0: FC = ({ children }) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onRedirectCallback = (appState: any) => {
