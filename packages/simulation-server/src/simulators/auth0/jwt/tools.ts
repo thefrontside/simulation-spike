@@ -69,16 +69,21 @@ export const createJWKS = ({
 }): JWKS => {
   const helperKey = new NodeRSA();
   helperKey.importKey(forge.pki.privateKeyToPem(privateKey));
+
   const { n: modulus, e: exponent } = helperKey.exportKey('components');
+
   const certPem = createCertificate({
     jwksOrigin,
     privateKey,
     publicKey,
   });
+
   const certDer = forge.util.encode64(
     forge.asn1.toDer(forge.pki.certificateToAsn1(forge.pki.certificateFromPem(certPem))).getBytes(),
   );
+
   const thumbprint = base64url.encode(getCertThumbprint(certDer));
+
   return {
     keys: [
       {
@@ -108,13 +113,14 @@ export interface JwtPayload {
   sub?: string;
   iss?: string;
   aud?: string;
-  exp?: string;
+  exp?: number;
   nbf?: string;
-  iat?: string;
+  iat?: number;
   jti?: string;
   alg?: string;
   typ?: string;
   mail?: string;
+  nonce?: string;
 }
 
 export const signJwt = (privateKey: forge.pki.PrivateKey, jwtPayload: JwtPayload, kid?: string): string => {
