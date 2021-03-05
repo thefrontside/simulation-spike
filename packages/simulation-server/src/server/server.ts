@@ -17,12 +17,15 @@ import path from 'path';
 
 const cwd = process.cwd();
 
+/*
+brew install mkcert
+brew install nss # for firefox
+
+mkcert -install -cert-file localhost -key-file localhost
+*/
 const ssl: ServerOptions = {
-  key: fs.readFileSync(path.join(cwd, './certs/server_key.pem')),
-  cert: fs.readFileSync(path.join(cwd, './certs/server_cert.pem')),
-  requestCert: true,
-  rejectUnauthorized: false,
-  ca: [fs.readFileSync(path.join(cwd, './certs/server_cert.pem'))],
+  key: fs.readFileSync(path.join(cwd, './certs/localhost-key.pem')),
+  cert: fs.readFileSync(path.join(cwd, './certs/localhost.pem')),
 };
 
 // import helmet from 'helmet';

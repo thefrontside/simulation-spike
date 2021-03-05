@@ -13,8 +13,8 @@ export class ErrorBoundary extends Component<Props, { hasError: boolean }> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
-    console.dir(error);
-    console.dir(errorInfo);
+    console.log(error);
+    console.log(errorInfo);
   }
 
   render(): JSX.Element {

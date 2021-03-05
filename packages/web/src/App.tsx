@@ -27,6 +27,7 @@ const Auth0: FC = ({ children }) => {
       redirectUri={window.location.origin}
       onRedirectCallback={onRedirectCallback}
       scope="openid profile email"
+      authorizeTimeoutInSeconds={5}
     >
       {children}
     </Auth0Provider>
