@@ -12,4 +12,4 @@ RUN npm cache clean --force
 
 RUN npm install --production
 
-CMD ["node", "dist/server/server.js"]
+CMD ["npm", "run", "watch"]

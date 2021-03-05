@@ -9,10 +9,10 @@
     "clean": "rimraf tsconfig.tsbuildinfo __generated__ dist",
     "generate": "tsc && ts-node src/schema.ts",
     "build": "yarn clean && yarn generate",
-    "run": "node dist/server/server.js",
+    "server": "PORT=3000 NODE_ENV=production node dist/server/server.js",
     "start": "yarn watch",
     "test": "yarn jest --useStderr",
-    "watch": "NODE_ENV=development yarn ts-node  -P ./watch-tsconfig.json ./watch.ts"
+    "watch": "PORT=3000 NODE_ENV=development yarn ts-node  -P ./watch-tsconfig.json ./watch.ts"
   },
   "devDependencies": {
     "@bigtest/suite": "^0.11.3",
