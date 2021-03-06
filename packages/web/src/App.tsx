@@ -12,8 +12,7 @@ import { ErrorBoundary } from './components/ErrorBoundary/ErrorBoundary';
 const queryClient = new QueryClient();
 
 const Auth0: FC = ({ children }) => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const onRedirectCallback = (appState: any) => {
+  const onRedirectCallback = (appState: { returnTo?: string }) => {
     console.dir({ appState });
     history.push(appState?.returnTo || window.location.pathname);
   };

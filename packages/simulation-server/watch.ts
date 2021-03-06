@@ -1,14 +1,17 @@
+import type { Operation } from 'effection';
+import type { Process } from '@effection/node';
 import { main, exec, daemon, StdIO } from '@effection/node';
 import { subscribe, Subscription } from '@effection/subscription';
 import type { Channel } from '@effection/channel';
 import { spawn, timeout } from 'effection';
 import { on } from '@effection/events';
 import { watch } from 'chokidar';
+import { Context } from 'vm';
 
 main(function* () {
   const watcher = watch('./src/**/*.ts', { ignoreInitial: true });
   try {
-    let process = yield spawn(buildAndRun(500));
+    let process: Context = yield spawn(buildAndRun(500));
 
     const events: Subscription<[string]> = yield on(watcher, 'all');
 
@@ -42,14 +45,14 @@ function writeOut(channel: Channel<string>, out: NodeJS.WriteStream) {
   });
 }
 
-function* executeAndOut(command: string) {
-  const p = yield exec(`yarn ${command}`);
+function* executeAndOut(command: string): Operation<Context> {
+  const p: Process = yield exec(`yarn ${command}`);
   yield spawn(writeOut(p.stdout, process.stdout));
   yield spawn(writeOut(p.stderr, process.stderr));
   yield p.expect();
 }
 
-function* buildAndRun(delay = 0) {
+function* buildAndRun(delay = 0): Operation<Context> {
   try {
     yield executeAndOut('clean');
     yield executeAndOut('generate');
