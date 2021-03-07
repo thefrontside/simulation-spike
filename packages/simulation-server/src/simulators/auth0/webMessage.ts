@@ -15,6 +15,7 @@ export const webMessage = ({
     },
     { json: true, isScriptContext: true },
   );
+
   return `
   <!DOCTYPE html>
     <html>
@@ -60,8 +61,8 @@ export const webMessage = ({
                 type: "relay_request"
               }, targetOrigin);
             } else {
-              console.dir(authorizationResponse);
-              console.dir(targetOrigin);
+              console.log(authorizationResponse);
+              console.log(targetOrigin);
               mainWin.postMessage(authorizationResponse, targetOrigin);
             }
           })(this, this.document);

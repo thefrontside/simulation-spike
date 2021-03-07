@@ -8,14 +8,11 @@ import styles from './UnAuthorised.module.scss';
 export const UnAuthorised: FC = () => {
   const { loginWithPopup, isAuthenticated, isLoading, error } = useAuth0();
 
-  console.log({ isAuthenticated, isLoading });
-
   if (isLoading) {
     return <LoadingOverlay busy={true} />;
   }
 
   if (error) {
-    console.error(error);
     return <div>drat....{error.message}</div>;
   }
 
@@ -24,14 +21,14 @@ export const UnAuthorised: FC = () => {
       <h1>You are {isAuthenticated ? 'authenticated' : 'unauthenticated'}</h1>
       <p>
         {!isAuthenticated && (
-          <Button buttonStyle="primary" onClick={() => loginWithPopup()}>
+          <Button buttonStyle="primary" onClick={loginWithPopup}>
             Log In
           </Button>
         )}
         {isAuthenticated && (
-          <h2>
+          <strong>
             <Link to="/">Ok, now go to authorised</Link>
-          </h2>
+          </strong>
         )}
       </p>
     </section>

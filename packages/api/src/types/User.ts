@@ -15,7 +15,7 @@ export const User = objectType({
     // t.field('createdAt', {
     //   type: GraphQLDateTime,
     // });
-    // t.field('updatedAt', {
+    // t.field('updatedAt', `{
     //   type: GraphQLDateTime,
     // });
   },
