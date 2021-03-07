@@ -29,9 +29,9 @@ export const UnAuthorised: FC = () => {
           </Button>
         )}
         {isAuthenticated && (
-          <h2>
+          <strong>
             <Link to="/">Ok, now go to authorised</Link>
-          </h2>
+          </strong>
         )}
       </p>
     </section>

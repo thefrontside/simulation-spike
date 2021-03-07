@@ -25,6 +25,8 @@ const Auth0: FC = ({ children }) => {
       onRedirectCallback={onRedirectCallback}
       scope="openid profile email"
       authorizeTimeoutInSeconds={5}
+      simulator={Auth.simulator}
+      simulationId={Auth.simulationId}
     >
       {children}
     </Auth0Provider>

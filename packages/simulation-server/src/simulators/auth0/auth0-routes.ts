@@ -7,12 +7,14 @@ import { webMessage } from './webMessage';
 import { Auth0QueryParams } from './types';
 import createJWKSMock from './jwt/create-jwt-mocks';
 import { ourDomain, scope } from './common';
-import { epochTime } from '../../utils/date';
+import { epochTime, expiresAt } from '../../utils/date';
 
 const alg = 'RS256';
 
 // HACK: horrible spike code temp store.
 const nonceMap: Record<string, string> = {};
+
+type SimulationRequestProps = { simulationId: string; simulator: 'auth0' };
 
 // TODO: add jwks.json endpoint
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -20,42 +22,43 @@ export const addRoutes = (atom: Slice<SimulationsState>) => (app: Express): void
   const jwksMock = createJWKSMock(ourDomain);
 
   const simulationMiddleware = (req: Request, res: Response, next: NextFunction) => {
-    if (['auth0', 'gateway'].every((url) => req.url.startsWith(`/${url}`) === false)) {
-      console.dir(`redirecting ${req.url}`);
-      console.dir(req.headers);
-      next();
-      return;
+    let { simulationId, simulator } = req.query as SimulationRequestProps;
+
+    if (['options', 'head'].includes(req.method)) {
+      return next();
     }
 
-    console.log(`>>>>>>> ${req.url} <<<<<<<<<<<<<<<<<<`);
-    console.dir({ query: req.query });
-    console.dir({ headers: req.headers });
-    console.dir({ body: req.body });
-    console.log(`>>>>>>> ${req.url} <<<<<<<<<<<<<<<<<<`);
+    if (!simulationId && !simulator) {
+      ({ simulationId, simulator } = req.body);
+    }
 
-    // const simulationId = req.params['simulation_id'];
+    console.dir({ simulationId, simulator });
 
-    // const simulations = Object.values(atom.slice('simulations').get());
-    // const simulation = simulations.find(({ simulation }) => simulation.uuid === simulationId);
+    if (simulator !== 'auth0') {
+      console.log(`no auth0 route match for ${req.url}`);
+      return next();
+    }
 
-    // if (typeof simulation === 'undefined') {
-    //   console.log(`no simulation for ${simulationId}`);
-    //   res.status(404).send('Not found');
-    //   return;
-    // }
+    const simulations = Object.values(atom.slice('simulations').get());
+    const simulation = simulations.find(({ simulation }) => simulation.uuid === simulationId);
+
+    if (typeof simulation === 'undefined') {
+      console.log(`no simulation for ${simulationId}`);
+      return res.status(404).send('Not found');
+    }
 
     next();
   };
 
-  app.get('/auth0/:simulation_id/tokens', simulationMiddleware, function (req, res) {
+  app.get('/tokens', simulationMiddleware, function (req, res) {
     return res.json(tokenStore.tokens);
   });
 
-  app.get('/auth0/:simulation_id/userinfo', simulationMiddleware, function (req, res) {
+  app.get('/userinfo', simulationMiddleware, function (req, res) {
     return res.json({ wut: '?' });
   });
 
-  app.get('/auth0/:simulation_id/authorize', simulationMiddleware, (req, res) => {
+  app.get('/authorize', simulationMiddleware, (req, res) => {
     const { client_id, redirect_uri, scope, state, code_challenge, nonce } = req.query as Auth0QueryParams;
 
     const required = { client_id, scope, redirect_uri } as const;
@@ -77,12 +80,10 @@ export const addRoutes = (atom: Slice<SimulationsState>) => (app: Express): void
     return res.status(200).send(Buffer.from(raw));
   });
 
-  app.post('/auth0/:simulation_id/oauth/token', simulationMiddleware, function (req, res) {
+  app.post('/oauth/token', simulationMiddleware, function (req, res) {
+    console.log('**** made it to /oauth/token ********');
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { client_id, code_verifier, code, grant_type, redirect_uri } = req.body;
-    const hours = 1;
-
-    const expiresIn = epochTime() + hours * 60 * 60 * 1000;
 
     const issued = Date.now();
 
@@ -93,11 +94,13 @@ export const addRoutes = (atom: Slice<SimulationsState>) => (app: Express): void
       return;
     }
 
+    const expires = expiresAt();
+
     const idToken = jwksMock.token({
       alg,
       typ: 'JWT',
       iss: ourDomain,
-      exp: expiresIn,
+      exp: expires,
       iat: issued,
       mail: 'bob@gmail.com',
       aud: client_id,
@@ -109,7 +112,7 @@ export const addRoutes = (atom: Slice<SimulationsState>) => (app: Express): void
       alg,
       typ: 'JWT',
       iss: ourDomain,
-      exp: expiresIn,
+      exp: expires,
       iat: issued,
       aud: client_id,
     });

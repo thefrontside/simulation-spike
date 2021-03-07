@@ -9,7 +9,7 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "paths": {
-      "simulation-server": ["packages/simulation-server"],
+      "simulation-server": ["packages/simulation-server/src"],
       "fake-api": ["packages/api/src"],
       "web": ["packages/web/src"]
     }
