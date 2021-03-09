@@ -11,8 +11,8 @@ import {
 import { assert } from 'assert-ts';
 import { Slice } from '@bigtest/atom';
 import { StatePublisher } from '../state-publisher/state-publisher';
-import { getArbitraryInstance } from '../fakery/arbitrary';
 import { fullUrl } from '../utils/url';
+import { Generate, createGenerator } from '../fakery/arbitrary';
 
 export const SimulatorsKey = 'simulators';
 
@@ -30,7 +30,10 @@ const updateSimulatorThings = (atom: Slice<SimulationsState>) => (simulationUuid
   });
 
 export class SimulationContext {
-  constructor(public atom: Slice<SimulationsState>, public publisher: StatePublisher) {}
+  generate: Generate;
+  constructor(public atom: Slice<SimulationsState>, public publisher: StatePublisher) {
+    this.generate = createGenerator();
+  }
 
   async createSimulation<SIMS extends SimulatorTags>(
     name: string,
@@ -51,7 +54,7 @@ export class SimulationContext {
 
     name = name ?? simulators;
 
-    const simulation = await Simulation.createSimulation<SIMS>(name, simulators, uuid, timeToLiveInMs);
+    const simulation = await Simulation.createSimulation<SIMS>(name, simulators, this.generate, uuid, timeToLiveInMs);
 
     this.atom.slice('simulations').update((s) => {
       s[simulation.uuid] = ({
@@ -138,7 +141,7 @@ export class SimulationContext {
       const type = sim.getIntermediateType(kind);
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const attributes = getArbitraryInstance(type) as any;
+      const attributes = this.generate(type) as any;
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       for (const key of Object.keys(thing.value as any)) {
@@ -161,10 +164,10 @@ export class SimulationContext {
       updateSimulatorThings(this.atom)(simulation.uuid)(sim.uuid, newThing);
     }
 
-    // console.dir('gateway');
-    // console.dir(simulation.simulators?.gateway?.store?.getAll());
-    // console.dir('auth0');
-    // console.dir(simulation.simulators?.auth0?.store?.getAll());
+    console.dir('gateway');
+    console.dir(simulation.simulators?.gateway?.store?.getAll());
+    console.dir('auth0');
+    console.dir(simulation.simulators?.auth0?.store?.getAll());
 
     return {
       success: true,

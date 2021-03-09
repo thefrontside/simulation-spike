@@ -6,7 +6,6 @@ import { map } from '../server/synchronize';
 import { Channel } from '@effection/channel';
 import { subscribe, Subscription, SymbolSubscribable } from '@effection/subscription';
 import { assert } from 'assert-ts';
-import { getArbitraryInstance } from '../fakery/arbitrary';
 
 export type SimulationEvents = {
   kind: 'SIMULATION_CREATED';
@@ -90,7 +89,7 @@ export function createStatePublisher(atom: Slice<SimulationsState>): StatePublis
                   const type = simulatorSlice.get().getIntermediateType(kind);
 
                   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  const attributes = getArbitraryInstance(type) as any;
+                  const attributes = simulation.generate(type) as any;
 
                   for (const key of Object.keys(thing.value)) {
                     if (attributes[key]) {

@@ -7,7 +7,7 @@ import { webMessage } from './webMessage';
 import { Auth0QueryParams } from './types';
 import createJWKSMock from './jwt/create-jwt-mocks';
 import { ourDomain, scope } from './common';
-import { epochTime, expiresAt } from '../../utils/date';
+import { expiresAt } from '../../utils/date';
 
 const alg = 'RS256';
 
@@ -17,7 +17,6 @@ const nonceMap: Record<string, string> = {};
 type SimulationRequestProps = { simulationId: string; simulator: 'auth0' };
 
 // TODO: add jwks.json endpoint
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const addRoutes = (atom: Slice<SimulationsState>) => (app: Express): void => {
   const jwksMock = createJWKSMock(ourDomain);
 
@@ -31,8 +30,6 @@ export const addRoutes = (atom: Slice<SimulationsState>) => (app: Express): void
     if (!simulationId && !simulator) {
       ({ simulationId, simulator } = req.body);
     }
-
-    console.dir({ simulationId, simulator });
 
     if (simulator !== 'auth0') {
       console.log(`no auth0 route match for ${req.url}`);
@@ -63,6 +60,9 @@ export const addRoutes = (atom: Slice<SimulationsState>) => (app: Express): void
 
     const required = { client_id, scope, redirect_uri } as const;
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const missing = Object.entries(required).filter(([_, v]) => typeof v === 'undefined')
+
     for (const key of Object.keys(required)) {
       if (!required[key as keyof typeof required]) {
         return res.status(400).send(`missing ${key}`);
@@ -81,7 +81,6 @@ export const addRoutes = (atom: Slice<SimulationsState>) => (app: Express): void
   });
 
   app.post('/oauth/token', simulationMiddleware, function (req, res) {
-    console.log('**** made it to /oauth/token ********');
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { client_id, code_verifier, code, grant_type, redirect_uri } = req.body;
 
@@ -90,8 +89,7 @@ export const addRoutes = (atom: Slice<SimulationsState>) => (app: Express): void
     const nonce = nonceMap[code];
 
     if (!nonce) {
-      res.status(400).send(`no nonce in store for ${code}`);
-      return;
+      return res.status(400).send(`no nonce in store for ${code}`);
     }
 
     const expires = expiresAt();

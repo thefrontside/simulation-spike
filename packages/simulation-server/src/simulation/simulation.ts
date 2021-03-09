@@ -1,10 +1,9 @@
 import { gatewayFactory } from '../simulators/gateway/gatewaySimulator';
 import { auth0Factory } from '../simulators/auth0/auth0simulator';
-import { getArbitraryInstance } from '../fakery/arbitrary';
+import { Generate } from '../fakery/arbitrary';
 import { Thing, Simulator, SimulatorTags, SimulationSimulatorStatuses } from '../types';
 import { assert } from 'assert-ts';
 import { v4 } from 'uuid';
-import { generateUUID4 } from '../fakery/fakery';
 
 const getSimulator = <S extends SimulatorTags>(simulation: Simulation<S>) => async <SIMS extends SimulatorTags>(
   tag: SIMS,
@@ -22,7 +21,8 @@ const getSimulator = <S extends SimulatorTags>(simulation: Simulation<S>) => asy
 export class Simulation<SIMS extends SimulatorTags> {
   public simulators: Record<SIMS, Simulator<SIMS>>;
   public readonly uuid: string;
-  constructor(public name: string, uuid?: string, public timeToLiveInMs: number = 500) {
+
+  constructor(public name: string, public generate: Generate, uuid?: string, public timeToLiveInMs: number = 500) {
     this.uuid = uuid ?? v4();
     this.simulators = {} as Record<SIMS, Simulator<SIMS>>;
   }
@@ -42,13 +42,13 @@ export class Simulation<SIMS extends SimulatorTags> {
 
     assert(!!sim, `no simulator found for ${simulator}`);
 
-    const raw = attributes ?? getArbitraryInstance(sim.getIntermediateType(kind));
+    const raw = attributes ?? this.generate(sim.getIntermediateType(kind));
 
     assert(!!raw, `no instance found for ${kind}`);
 
     const entity = sim.create(kind, raw) as T;
 
-    const uuid = identifier || generateUUID4();
+    const uuid = identifier || v4();
 
     return {
       uuid,
@@ -77,12 +77,13 @@ export class Simulation<SIMS extends SimulatorTags> {
   static async createSimulation<SSIMS extends SimulatorTags>(
     name: string,
     simulators: SSIMS | SSIMS[],
+    generate: Generate,
     uuid?: string,
     timeToLiveInMs = 500,
   ): Promise<Simulation<SSIMS>> {
     simulators = Array.isArray(simulators) ? simulators : [simulators];
 
-    const simulation = new Simulation<SSIMS>(name, uuid, timeToLiveInMs);
+    const simulation = new Simulation<SSIMS>(name, generate, uuid, timeToLiveInMs);
 
     for (const sim of await Promise.all<Simulator<SSIMS>>(simulators.map(getSimulator(simulation)))) {
       assert(!!sim, `no simulator`);

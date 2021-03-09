@@ -55,7 +55,7 @@ main(function* () {
 
   const simulationContext = new SimulationContext(atom, publisher);
 
-  yield spawn(publisher.start());
+  // yield spawn(publisher.start());
 
   const controlServer = new ApolloServer({
     ...ApolloServerDefaults,

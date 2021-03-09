@@ -5,6 +5,7 @@ import * as t from 'io-ts';
 import * as fc from 'fast-check';
 import { generateDateArbitrary, generateStringArbitrary } from './fakery';
 import { assert } from 'assert-ts';
+import { Arbitrary } from 'fast-check';
 
 type ArrayType = t.ArrayType<HasArbitrary>;
 type RecordType = t.DictionaryType<t.StringType, HasArbitrary>;
@@ -126,6 +127,38 @@ export function getArbitrary<T extends HasArbitrary>(current: T | [string | unde
   }
 }
 
-export function getArbitraryInstance<T extends HasArbitrary, R>(current: T | [string | undefined, T]): R {
-  return (fc.sample(getArbitrary(current))[0] as unknown) as R;
-}
+export type GenerateNArbitraries = typeof generateNArbitraries;
+
+const generateNArbitraries = <T>(arb: Arbitrary<T>, n = 1, seed = 0): T[] => {
+  // using seed in order to always generate the same
+  return fc.sample(
+    fc.set(arb, {
+      minLength: n,
+      maxLength: n,
+      compare: (u1, u2) => {
+        return u1 === u2;
+      },
+    }),
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    { numRuns: 1, seed },
+  )[0];
+};
+
+export const createGenerateNArbitraries = (): GenerateNArbitraries => {
+  let seed = 0;
+
+  return <T>(arb: Arbitrary<T>, n = 1) => {
+    seed++;
+
+    console.dir({ seed });
+
+    return generateNArbitraries(arb, n, seed);
+  };
+};
+
+export const createGenerator = () => <T extends HasArbitrary, R>(current: T | [string | undefined, T]): R => {
+  const generator = createGenerateNArbitraries();
+  return (generator(getArbitrary(current))[0] as unknown) as R;
+};
+
+export type Generate = ReturnType<typeof createGenerator>;
