@@ -6,5 +6,5 @@ export const Auth: Auth0ProviderOptions = {
   clientId: 'IsuLUyWaFczCbAKQrIpVPmyBTFs4g5iq',
   clientSecret: 'WKkaiheEDD3-EL6RJVVm23AgmAbK_CyRNfvkdJuconSQcZzxwb_ur8514rWyBcDQ',
   simulator: 'auth0',
-  simulationId: '00000005-a26a-481a-bfff-fff00000000c',
+  simulationId: '8dde3398-acf0-44cd-994c-e84ddf867f53',
 };
