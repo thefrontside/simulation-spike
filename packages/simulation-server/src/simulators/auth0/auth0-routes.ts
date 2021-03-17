@@ -6,7 +6,7 @@ import { Request, Response, NextFunction } from 'express';
 import { webMessage } from './webMessage';
 import { Auth0QueryParams } from './types';
 import createJWKSMock from './jwt/create-jwt-mocks';
-import { ourDomain, scope } from './common';
+import { Domain, scope } from './common';
 import { expiresAt } from '../../utils/date';
 
 const alg = 'RS256';
@@ -19,7 +19,7 @@ type SimulationRequestProps = { simulationId: string; simulator: 'auth0' };
 // TODO: add jwks.json endpoint
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const addRoutes = (atom: Slice<SimulationsState>) => (app: Express): void => {
-  const jwksMock = createJWKSMock(ourDomain);
+  const jwksMock = createJWKSMock(Domain);
 
   const simulationMiddleware = (req: Request, res: Response, next: NextFunction) => {
     let { simulationId, simulator } = req.query as SimulationRequestProps;
@@ -96,7 +96,7 @@ export const addRoutes = (atom: Slice<SimulationsState>) => (app: Express): void
     const idToken = jwksMock.token({
       alg,
       typ: 'JWT',
-      iss: ourDomain,
+      iss: Domain,
       exp: expires,
       iat: issued,
       mail: 'bob@gmail.com',
@@ -108,7 +108,7 @@ export const addRoutes = (atom: Slice<SimulationsState>) => (app: Express): void
     const accessToken = jwksMock.token({
       alg,
       typ: 'JWT',
-      iss: ourDomain,
+      iss: Domain,
       exp: expires,
       iat: issued,
       aud: client_id,
