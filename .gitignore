@@ -11,3 +11,6 @@ dist
 .DS_store
 
 __generated__
+
+*.pem
+auth0_config.ts

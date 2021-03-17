@@ -24,11 +24,10 @@ brew install nss # for firefox
 
 mkcert -install   # Created a new local CA at the location returned from `mkcert -CAROOT`
 mkcert localhost  # Using the local CA at CAROOT, create a new certificate valid for the following names
-openssl rsa -in ./localhost-key.pem -out ./localhost-key-pkcs1.pem # convert to RSA token
 */
 const ssl: ServerOptions = {
-  key: fs.readFileSync(path.join(cwd, './certs/localhost-key-pkcs1.pem')),
-  cert: fs.readFileSync(path.join(cwd, './certs/localhost.pem')),
+  key: fs.readFileSync(path.join(cwd, 'certs', 'localhost-key.pem')),
+  cert: fs.readFileSync(path.join(cwd, 'certs', 'localhost.pem')),
 };
 
 // import helmet from 'helmet';

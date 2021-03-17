@@ -1,2 +1,2 @@
-export const Domain = `https://localhost:3000/`;
+export const Domain = `https://localhost:4000/`;
 export const scope = 'openid profile email';
