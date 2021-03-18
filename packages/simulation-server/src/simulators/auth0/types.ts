@@ -7,6 +7,7 @@ export type Auth0QueryParams = {
   client_id: string;
   nonce: string;
   response_mode: 'query' | 'web_message';
+  simulationId: string;
 };
 
 export type OauthTokenBody = {

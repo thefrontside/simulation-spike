@@ -13,7 +13,14 @@ import { redirect } from './redirect';
 const alg = 'RS256';
 
 // HACK: horrible spike code temp store.
-const nonceMap: Record<string, string> = {};
+const nonceMap: Record<
+  string,
+  {
+    code_challenge: string;
+    redirect_uri: string;
+    nonce: string;
+  }
+> = {};
 
 // type SimulationRequestProps = { simulationId: string; simulator: 'auth0' };
 
@@ -48,11 +55,11 @@ export const addRoutes = (atom: Slice<SimulationsState>) => (app: Express): void
     //   return res.status(404).send('Not found');
     // }
 
-    // console.log(`>>>>>>> ${req.url} <<<<<<<<<<<<<<<<<<`);
-    // console.dir({ query: req.query });
-    // console.dir({ headers: req.headers });
-    // console.dir({ body: req.body });
-    // console.log(`>>>>>>> ${req.url} <<<<<<<<<<<<<<<<<<`);
+    console.log(`>>>>>>> ${req.url} <<<<<<<<<<<<<<<<<<`);
+    console.dir({ query: req.query });
+    console.dir({ headers: req.headers['auth0-client'] });
+    console.dir({ body: req.body });
+    console.log(`>>>>>>> ${req.url} <<<<<<<<<<<<<<<<<<`);
 
     next();
   };
@@ -66,9 +73,6 @@ export const addRoutes = (atom: Slice<SimulationsState>) => (app: Express): void
   });
 
   app.get('/authorize', simulationMiddleware, (req, res) => {
-    console.log('-----------------------');
-    console.dir(req.query);
-    console.log('-----------------------');
     const {
       client_id,
       redirect_uri,
@@ -79,7 +83,7 @@ export const addRoutes = (atom: Slice<SimulationsState>) => (app: Express): void
       response_mode,
     } = req.query as Auth0QueryParams;
 
-    const required = { client_id, scope, redirect_uri, response_mode } as const;
+    const required = { client_id, scope, redirect_uri } as const;
 
     for (const key of Object.keys(required)) {
       if (!required[key as keyof typeof required]) {
@@ -96,7 +100,11 @@ export const addRoutes = (atom: Slice<SimulationsState>) => (app: Express): void
         ? webMessage({ code: code_challenge, state, redirect_uri, nonce })
         : redirect({ state });
 
-    nonceMap[code_challenge] = nonce;
+    nonceMap[code_challenge] = {
+      code_challenge,
+      redirect_uri,
+      nonce,
+    };
 
     if (response_mode === 'web_message') {
       return res.status(200).send(Buffer.from(raw));
@@ -109,15 +117,15 @@ export const addRoutes = (atom: Slice<SimulationsState>) => (app: Express): void
     res.status(200).redirect(`http://localhost:5000/login`);
   });
 
-  const loginPostHandler = (req: Request, res: Response) => {
+  app.post('/u/login', simulationMiddleware, (req: Request, res: Response) => {
     const { code, state } = req.query as { code: string; state: string };
-    res.status(302).redirect(`http://localhost:5000?code=${code}&state=${state}`);
-  };
-
-  app.post('/u/login', simulationMiddleware, loginPostHandler);
+    return res.status(302).redirect(`http://localhost:5000?code=${code}&state=${state}`);
+  });
 
   app.post('/co/authenticate', simulationMiddleware, function (req, res) {
-    res.send(200).json({ ok: true });
+    return res.status(200).json({
+      login_ticket: 'blah',
+    });
   });
 
   app.post('/oauth/token', simulationMiddleware, function (req, res) {
@@ -126,7 +134,7 @@ export const addRoutes = (atom: Slice<SimulationsState>) => (app: Express): void
 
     const issued = Date.now();
 
-    const nonce = nonceMap[code];
+    const { nonce } = nonceMap[code];
 
     if (!nonce) {
       return res.status(400).send(`no nonce in store for ${code}`);

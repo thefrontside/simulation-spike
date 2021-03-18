@@ -35,7 +35,7 @@ export const Login: FC = () => {
         {({ isSubmitting, handleChange, values: { username, password }, handleSubmit }) => (
           <Form onSubmit={handleSubmit}>
             <div>
-              <input type="hidden" value={window.location.search.substr(7)} />
+              <input type="hidden" name="state" value={window.location.search.substr(7)} />
               <FormInput name="username" label="User" onChange={handleChange} value={username} />
               <FormInput name="password" label="Password" type="password" onChange={handleChange} value={password} />
             </div>
