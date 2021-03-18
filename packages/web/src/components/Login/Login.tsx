@@ -1,4 +1,4 @@
-import { ChangeEvent, FC } from 'react';
+import { FC } from 'react';
 import { FormInput, Button } from '@cutting/component-library';
 import { Formik, Form } from 'formik';
 import { WebAuth } from 'auth0-js';
@@ -27,22 +27,20 @@ export const Login: FC = () => {
       <Formik
         initialValues={{ username: 'bob@gmail.com', password: 'aaa' }}
         onSubmit={submitForm}
-        validate={() => ({})}
+        validate={(values) => {
+          console.dir(values);
+          return {};
+        }}
       >
-        {({ isSubmitting, setFieldValue }) => (
-          <Form data-test-sign-in-form noValidate>
+        {({ isSubmitting, handleChange, values: { username, password }, handleSubmit }) => (
+          <Form onSubmit={handleSubmit}>
             <div>
               <input type="hidden" value={window.location.search.substr(7)} />
-              <FormInput name="username" label="Email" onChange={(e: ChangeEvent) => setFieldValue('username', e)} />
-              <FormInput
-                name="password"
-                label="Password"
-                type="password"
-                onChange={(e: ChangeEvent) => setFieldValue('password', e)}
-              />
+              <FormInput name="username" label="User" onChange={handleChange} value={username} />
+              <FormInput name="password" label="Password" type="password" onChange={handleChange} value={password} />
             </div>
             <div>
-              <Button buttonStyle="primary" disabled={isSubmitting}>
+              <Button buttonStyle="primary" disabled={isSubmitting} type="submit">
                 Submit
               </Button>
             </div>

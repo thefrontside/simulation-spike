@@ -15,7 +15,7 @@ const alg = 'RS256';
 // HACK: horrible spike code temp store.
 const nonceMap: Record<string, string> = {};
 
-type SimulationRequestProps = { simulationId: string; simulator: 'auth0' };
+// type SimulationRequestProps = { simulationId: string; simulator: 'auth0' };
 
 // TODO: add jwks.json endpoint
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -23,34 +23,34 @@ export const addRoutes = (atom: Slice<SimulationsState>) => (app: Express): void
   const jwksMock = createJWKSMock(Domain);
 
   const simulationMiddleware = (req: Request, res: Response, next: NextFunction) => {
-    let { simulationId, simulator } = req.query as SimulationRequestProps;
+    // const { simulationId, simulator } = req.query as SimulationRequestProps;
 
-    if (['options', 'head'].includes(req.method)) {
-      return next();
-    }
+    // if (['options', 'head'].includes(req.method)) {
+    //   return next();
+    // }
 
-    if (!simulationId && !simulator) {
-      ({ simulationId, simulator } = req.body);
-    }
+    // if (!simulationId && !simulator) {
+    //   ({ simulationId, simulator } = req.body);
+    // }
 
-    if (simulator !== 'auth0') {
-      console.log(`no auth0 route match for ${req.url}`);
-      return next();
-    }
+    // if (simulator !== 'auth0') {
+    //   console.log(`no auth0 route match for ${req.url}`);
+    //   return next();
+    // }
 
-    const simulations = Object.values(atom.slice('simulations').get());
-    const simulation = simulations.find(({ simulation }) => simulation.uuid === simulationId);
+    // const simulations = Object.values(atom.slice('simulations').get());
+    // const simulation = simulations.find(({ simulation }) => simulation.uuid === simulationId);
 
-    if (typeof simulation === 'undefined') {
-      console.log(`no simulation for ${simulationId}`);
-      return res.status(404).send('Not found');
-    }
+    // if (typeof simulation === 'undefined') {
+    //   console.log(`no simulation for ${simulationId}`);
+    //   return res.status(404).send('Not found');
+    // }
 
-    console.log(`>>>>>>> ${req.url} <<<<<<<<<<<<<<<<<<`);
-    console.dir({ query: req.query });
-    console.dir({ headers: req.headers });
-    console.dir({ body: req.body });
-    console.log(`>>>>>>> ${req.url} <<<<<<<<<<<<<<<<<<`);
+    // console.log(`>>>>>>> ${req.url} <<<<<<<<<<<<<<<<<<`);
+    // console.dir({ query: req.query });
+    // console.dir({ headers: req.headers });
+    // console.dir({ body: req.body });
+    // console.log(`>>>>>>> ${req.url} <<<<<<<<<<<<<<<<<<`);
 
     next();
   };
@@ -100,13 +100,22 @@ export const addRoutes = (atom: Slice<SimulationsState>) => (app: Express): void
       return res.status(200).send(Buffer.from(raw));
     }
 
-    return res.status(302).redirect(`${Domain}u/login?state=${state}`);
+    return res.status(302).redirect(`http://localhost:5000/login?state=${state}&redirect_uri=${redirect_uri}`);
   });
 
-  app.get('/u/login', (req, res) => {
-    res.set('Content-Type', 'text/html');
+  app.get('/u/login', (_, res) => {
+    res.status(200).redirect(`http://localhost:5000/login`);
+  });
 
-    res.status(200).send(Buffer.from(`<h1>Herman</h1>`));
+  const loginPostHandler = (req: Request, res: Response) => {
+    const { code, state } = req.query as { code: string; state: string };
+    res.status(302).redirect(`http://localhost:5000?code=${code}&state=${state}`);
+  };
+
+  app.post('/u/login', loginPostHandler);
+
+  app.post('/co/authenticate', (req, res) => {
+    res.status(200).json({ ok: true });
   });
 
   app.post('/oauth/token', simulationMiddleware, function (req, res) {
