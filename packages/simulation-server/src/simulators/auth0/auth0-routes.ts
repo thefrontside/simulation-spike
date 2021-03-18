@@ -25,6 +25,8 @@ export const addRoutes = (atom: Slice<SimulationsState>) => (app: Express): void
   const simulationMiddleware = (req: Request, res: Response, next: NextFunction) => {
     // const { simulationId, simulator } = req.query as SimulationRequestProps;
 
+    console.dir(req.method);
+
     // if (['options', 'head'].includes(req.method)) {
     //   return next();
     // }
@@ -112,10 +114,10 @@ export const addRoutes = (atom: Slice<SimulationsState>) => (app: Express): void
     res.status(302).redirect(`http://localhost:5000?code=${code}&state=${state}`);
   };
 
-  app.post('/u/login', loginPostHandler);
+  app.post('/u/login', simulationMiddleware, loginPostHandler);
 
-  app.post('/co/authenticate', (req, res) => {
-    res.status(200).json({ ok: true });
+  app.post('/co/authenticate', simulationMiddleware, function (req, res) {
+    res.send(200).json({ ok: true });
   });
 
   app.post('/oauth/token', simulationMiddleware, function (req, res) {

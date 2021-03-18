@@ -72,7 +72,12 @@ main(function* () {
 
   const app = express();
 
-  app.use(cors());
+  app.use(
+    cors({
+      origin: 'http://localhost:5000',
+      credentials: true,
+    }),
+  );
 
   const server = https.createServer(ssl, app);
 
