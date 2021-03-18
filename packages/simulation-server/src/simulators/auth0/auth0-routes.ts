@@ -8,6 +8,7 @@ import { Auth0QueryParams } from './types';
 import createJWKSMock from './jwt/create-jwt-mocks';
 import { Domain, scope } from './common';
 import { expiresAt } from '../../utils/date';
+import { redirect } from './redirect';
 
 const alg = 'RS256';
 
@@ -45,6 +46,12 @@ export const addRoutes = (atom: Slice<SimulationsState>) => (app: Express): void
       return res.status(404).send('Not found');
     }
 
+    console.log(`>>>>>>> ${req.url} <<<<<<<<<<<<<<<<<<`);
+    console.dir({ query: req.query });
+    console.dir({ headers: req.headers });
+    console.dir({ body: req.body });
+    console.log(`>>>>>>> ${req.url} <<<<<<<<<<<<<<<<<<`);
+
     next();
   };
 
@@ -57,9 +64,20 @@ export const addRoutes = (atom: Slice<SimulationsState>) => (app: Express): void
   });
 
   app.get('/authorize', simulationMiddleware, (req, res) => {
-    const { client_id, redirect_uri, scope, state, code_challenge, nonce } = req.query as Auth0QueryParams;
+    console.log('-----------------------');
+    console.dir(req.query);
+    console.log('-----------------------');
+    const {
+      client_id,
+      redirect_uri,
+      scope,
+      state,
+      code_challenge,
+      nonce,
+      response_mode,
+    } = req.query as Auth0QueryParams;
 
-    const required = { client_id, scope, redirect_uri } as const;
+    const required = { client_id, scope, redirect_uri, response_mode } as const;
 
     for (const key of Object.keys(required)) {
       if (!required[key as keyof typeof required]) {
@@ -71,11 +89,24 @@ export const addRoutes = (atom: Slice<SimulationsState>) => (app: Express): void
 
     res.set('Content-Type', 'text/html');
 
-    const raw = webMessage({ code: code_challenge, state, redirect_uri, nonce });
+    const raw =
+      response_mode === 'web_message'
+        ? webMessage({ code: code_challenge, state, redirect_uri, nonce })
+        : redirect({ state });
 
     nonceMap[code_challenge] = nonce;
 
-    return res.status(200).send(Buffer.from(raw));
+    if (response_mode === 'web_message') {
+      return res.status(200).send(Buffer.from(raw));
+    }
+
+    return res.status(302).redirect(`${Domain}u/login?state=${state}`);
+  });
+
+  app.get('/u/login', (req, res) => {
+    res.set('Content-Type', 'text/html');
+
+    res.status(200).send(Buffer.from(`<h1>Herman</h1>`));
   });
 
   app.post('/oauth/token', simulationMiddleware, function (req, res) {
@@ -87,8 +118,7 @@ export const addRoutes = (atom: Slice<SimulationsState>) => (app: Express): void
     const nonce = nonceMap[code];
 
     if (!nonce) {
-      res.status(400).send(`no nonce in store for ${code}`);
-      return;
+      return res.status(400).send(`no nonce in store for ${code}`);
     }
 
     const expires = expiresAt();

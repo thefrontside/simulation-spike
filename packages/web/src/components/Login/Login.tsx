@@ -1,28 +1,54 @@
-import { ChangeEvent, FC, useState } from 'react';
+import { ChangeEvent, FC } from 'react';
 import { FormInput, Button } from '@cutting/component-library';
-import { useLogin } from 'src/hooks/useLogin';
+import { Formik, Form } from 'formik';
+import { WebAuth } from 'auth0-js';
+import { Auth as config } from '../../auth0_config';
 
 import styles from './Login.module.scss';
 
-const handler = (handler: React.Dispatch<React.SetStateAction<string>>) => (e: ChangeEvent<HTMLInputElement>) =>
-  handler(e.target.value);
+async function submitForm({ username, password }: { username: string; password: string }) {
+  const webAuth = new WebAuth({
+    domain: config.domain,
+    clientID: config.clientId,
+    redirectUri: window.location.origin,
+    responseType: 'code',
+  });
+
+  try {
+    await webAuth.login({ realm: 'Username-Password-Authentication', username, password }, console.log);
+  } catch (error) {
+    console.error(error);
+  }
+}
 
 export const Login: FC = () => {
-  const [email, setEmail] = useState('bob@gmail');
-  const [password, setPassword] = useState('aaaaaa');
-  const { mutate: login } = useLogin();
-
   return (
     <section className={styles.main}>
-      <div>
-        <FormInput name="email" label="Email" value={email} onChange={handler(setEmail)} />
-        <FormInput name="password" label="Password" value={password} type="password" onChange={handler(setPassword)} />
-      </div>
-      <div>
-        <Button buttonStyle="primary" type="button" onClick={() => login({ userName: email, password })}>
-          Submit
-        </Button>
-      </div>
+      <Formik
+        initialValues={{ username: 'bob@gmail.com', password: 'aaa' }}
+        onSubmit={submitForm}
+        validate={() => ({})}
+      >
+        {({ isSubmitting, setFieldValue }) => (
+          <Form data-test-sign-in-form noValidate>
+            <div>
+              <input type="hidden" value={window.location.search.substr(7)} />
+              <FormInput name="username" label="Email" onChange={(e: ChangeEvent) => setFieldValue('username', e)} />
+              <FormInput
+                name="password"
+                label="Password"
+                type="password"
+                onChange={(e: ChangeEvent) => setFieldValue('password', e)}
+              />
+            </div>
+            <div>
+              <Button buttonStyle="primary" disabled={isSubmitting}>
+                Submit
+              </Button>
+            </div>
+          </Form>
+        )}
+      </Formik>
     </section>
   );
 };

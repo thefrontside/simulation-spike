@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 import styles from './UnAuthorised.module.scss';
 
 export const UnAuthorised: FC = () => {
-  const { loginWithPopup, isAuthenticated, isLoading, error } = useAuth0();
+  const { loginWithRedirect, isAuthenticated, isLoading, error } = useAuth0();
 
   if (isLoading) {
     return <LoadingOverlay busy={true} />;
@@ -21,7 +21,7 @@ export const UnAuthorised: FC = () => {
       <h1>You are {isAuthenticated ? 'authenticated' : 'unauthenticated'}</h1>
       <p>
         {!isAuthenticated && (
-          <Button buttonStyle="primary" onClick={loginWithPopup}>
+          <Button buttonStyle="primary" onClick={() => loginWithRedirect()}>
             Log In
           </Button>
         )}

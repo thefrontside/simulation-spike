@@ -6,6 +6,7 @@ export type Auth0QueryParams = {
   scope: string;
   client_id: string;
   nonce: string;
+  response_mode: 'query' | 'web_message';
 };
 
 export type OauthTokenBody = {
